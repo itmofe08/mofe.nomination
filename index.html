@@ -3,638 +3,217 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>विदेश भ्रमण रेकर्ड व्यवस्थापन प्रणाली</title>
+<title>विदेश भ्रमण व्यवस्थापन प्रणाली</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Mukta:wght@300;400;500;600;700;800&family=Tiro+Devanagari+Hindi&display=swap');
-
   :root {
-    --g1: #0a4a0a;
-    --g2: #1a6b1a;
-    --g3: #2e8b2e;
-    --g4: #3da63d;
-    --g5: #52c152;
-    --gl: #e8f7e8;
-    --gll: #f2fbf2;
-    --gold: #d4a017;
-    --goldd: #b8860b;
-    --red: #c0392b;
-    --text: #1a2a1a;
-    --textl: #4a5a4a;
-    --border: #a8d5a8;
-    --shadow: 0 4px 20px rgba(0,100,0,0.15);
-    --shadow2: 0 8px 32px rgba(0,100,0,0.2);
+    --g1: #0a4a0a; --g2: #1a6b1a; --g3: #2e8b2e; --g4: #3da63d; --g5: #52c152;
+    --gl: #e8f7e8; --gll: #f2fbf2; --gold: #d4a017; --goldd: #b8860b;
+    --red: #c0392b; --text: #1a2a1a; --textl: #4a5a4a;
+    --border: #a8d5a8; --shadow: 0 4px 20px rgba(0,100,0,0.15); --shadow2: 0 8px 32px rgba(0,100,0,0.2);
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: 'Mukta', 'Tiro Devanagari Hindi', sans-serif;
-    background: linear-gradient(135deg, #e8f7e8 0%, #f0faf0 50%, #e0f5e0 100%);
-    min-height: 100vh;
-    color: var(--text);
-  }
+  body { font-family: 'Mukta', 'Tiro Devanagari Hindi', sans-serif; background: linear-gradient(135deg,#e8f7e8 0%,#f0faf0 50%,#e0f5e0 100%); min-height: 100vh; color: var(--text); }
 
   /* ===== HEADER ===== */
-  .header {
-    background: linear-gradient(135deg, var(--g1) 0%, var(--g2) 60%, var(--g3) 100%);
-    color: white;
-    padding: 0;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.3);
-    position: relative;
-    overflow: hidden;
-  }
-  .header::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(45deg, transparent, transparent 30px, rgba(255,255,255,0.02) 30px, rgba(255,255,255,0.02) 60px);
-  }
-  .header-inner {
-    display: flex;
-    align-items: center;
-    padding: 18px 28px;
-    gap: 20px;
-    position: relative;
-    z-index: 1;
-  }
-  .logo-area {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 14px;
-    min-width: 220px;
-  }
-  .logo-office-text {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-  .logo-office-text .gov-line {
-    font-size: 15px;
-    font-weight: 700;
-    color: #fff;
-    letter-spacing: 0.3px;
-  }
-  .logo-office-text .ministry-line {
-    font-size: 18px;
-    font-weight: 800;
-    color: #ffd700;
-    line-height: 1.2;
-  }
-  .logo-office-text .address-line {
-    font-size: 14px;
-    color: rgba(255,255,255,0.75);
-    font-weight: 500;
-  }
-  .logo-circle {
-    width: 80px; height: 80px;
-    display: flex; align-items: center; justify-content: center;
-    position: relative;
-    filter: drop-shadow(0 0 8px rgba(212,160,23,0.5));
-  }
-	
-  .logo-circle img {
-    width: 80px; height: 80px;
-    object-fit: contain;
-  }
-  .header-title {
-    flex: 1;
-    text-align: center;
-  }
-  .office-name {
-    font-size: 15px;
-    color: rgba(255,255,255,0.85);
-    font-weight: 500;
-    letter-spacing: 0.5px;
-    margin-bottom: 6px;
-  }
-  .main-title {
-    font-size: 22px;
-    font-weight: 800;
-    color: #fff;
-    line-height: 1.3;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    margin-bottom: 4px;
-  }
-  .sub-title {
-    font-size: 16px;
-	font-weight:bold;
-    color: rgba(255,255,255,0.7);
-  }
-  .year-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(212,160,23,0.25);
-    border: 1px solid var(--gold);
-    border-radius: 6px;
-    padding: 4px 12px;
-    margin-top: 6px;
-    font-size: 16px;
-    color: var(--gold);
-    font-weight: 600;
-  }
-  .year-input {
-    background: transparent;
-    border: none;
-    color: var(--gold);
-    font-weight: 700;
-    font-size: 15px;
-    font-family: inherit;
-    width: 70px;
-    text-align: center;
-    outline: none;
-  }
-  .header-right { min-width: 90px; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
-
-  /* ===== ROLE BADGE ===== */
-  .role-badge {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(255,255,255,0.15);
-    border: 1px solid rgba(255,255,255,0.3);
-    border-radius: 20px;
-    padding: 5px 14px;
-    font-size: 13px;
-    color: white;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .role-badge:hover { background: rgba(255,255,255,0.25); }
-  .role-dot { width: 8px; height: 8px; border-radius: 50%; }
-  .dot-admin { background: #ff6b6b; }
-  .dot-head { background: #ffd700; }
-  .dot-user { background: #6bff6b; }
+  .header { background: linear-gradient(135deg,var(--g1) 0%,var(--g2) 60%,var(--g3) 100%); color: white; padding: 0; box-shadow: 0 4px 24px rgba(0,0,0,0.3); position: relative; overflow: hidden; }
+  .header::before { content:''; position:absolute; inset:0; background:repeating-linear-gradient(45deg,transparent,transparent 30px,rgba(255,255,255,0.02) 30px,rgba(255,255,255,0.02) 60px); }
+  .header-inner { display:flex; align-items:center; padding:18px 28px; gap:20px; position:relative; z-index:1; }
+  .logo-area { display:flex; flex-direction:row; align-items:center; gap:14px; min-width:220px; }
+  .logo-circle { width:80px; height:80px; display:flex; align-items:center; justify-content:center; filter:drop-shadow(0 0 8px rgba(212,160,23,0.5)); }
+  .logo-circle img { width:80px; height:80px; object-fit:contain; }
+  .logo-office-text { display:flex; flex-direction:column; gap:2px; }
+  .logo-office-text .gov-line { font-size:15px; font-weight:700; color:#fff; letter-spacing:0.3px; }
+  .logo-office-text .ministry-line { font-size:18px; font-weight:800; color:#ffd700; line-height:1.2; }
+  .logo-office-text .address-line { font-size:14px; color:rgba(255,255,255,0.75); font-weight:500; }
+  .header-title { flex:1; text-align:center; }
+  .office-name { font-size:15px; color:rgba(255,255,255,0.85); font-weight:500; letter-spacing:0.5px; margin-bottom:6px; }
+  .main-title { font-size:22px; font-weight:800; color:#fff; line-height:1.3; text-shadow:0 2px 8px rgba(0,0,0,0.3); margin-bottom:4px; }
+  .sub-title { font-size:16px; font-weight:bold; color:rgba(255,255,255,0.7); }
+  .year-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(212,160,23,0.25); border:1px solid var(--gold); border-radius:6px; padding:4px 12px; margin-top:6px; font-size:13px; color:var(--gold); font-weight:600; }
+  .year-input { background:transparent; border:none; color:var(--gold); font-weight:700; font-size:13px; font-family:inherit; width:70px; text-align:center; outline:none; }
+  .header-right { min-width:130px; display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
+  .role-badge { display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3); border-radius:20px; padding:5px 14px; font-size:13px; color:white; font-weight:600; cursor:pointer; transition:all 0.2s; }
+  .role-badge:hover { background:rgba(255,255,255,0.25); }
+  .role-dot { width:8px; height:8px; border-radius:50%; }
+  .dot-admin { background:#ff6b6b; } .dot-head { background:#ffd700; } .dot-user { background:#6bff6b; }
+  .users-btn { display:none; background:rgba(212,160,23,0.3); border:1px solid var(--gold); color:#ffd700; border-radius:20px; padding:5px 14px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; transition:all 0.2s; }
+  .users-btn:hover { background:rgba(212,160,23,0.5); }
 
   /* ===== STATS BAR ===== */
-  .stats-bar {
-    background: var(--g2);
-    padding: 10px 28px;
-    display: flex;
-    gap: 20px;
-    border-top: 1px solid rgba(255,255,255,0.1);
-  }
-  .stat-chip {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(255,255,255,0.12);
-    border-radius: 20px;
-    padding: 4px 14px;
-    font-size: 24px;
-    color: rgba(255,255,255,0.9);
-    font-weight: 500;
-  }
-  .stat-num { font-weight: 800; color: #ffd700; }
+  .stats-bar { background:var(--g2); padding:10px 28px; display:flex; gap:20px; border-top:1px solid rgba(255,255,255,0.1); }
+  .stat-chip { display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.12); border-radius:20px; padding:4px 14px; font-size:14px; color:rgba(255,255,255,0.9); font-weight:500; }
+  .stat-num { font-weight:800; color:#ffd700; }
 
   /* ===== MODAL ===== */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(4px);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-  }
-  .modal-overlay.active { display: flex; }
-  .modal {
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    width: 90%;
-    max-width: 680px;
-    max-height: 90vh;
-    overflow-y: auto;
-    animation: modalIn 0.3s ease;
-  }
-  @keyframes modalIn { from { opacity: 0; transform: scale(0.9) translateY(-20px); } to { opacity: 1; transform: none; } }
-  .modal-header {
-    background: linear-gradient(135deg, var(--g1), var(--g2));
-    color: white;
-    padding: 20px 24px;
-    border-radius: 16px 16px 0 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .modal-title { font-size: 18px; font-weight: 700; }
-  .modal-close {
-    background: rgba(255,255,255,0.2);
-    border: none;
-    color: white;
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 18px;
-    display: flex; align-items: center; justify-content: center;
-    transition: background 0.2s;
-  }
-  .modal-close:hover { background: rgba(255,255,255,0.35); }
-  .modal-body { padding: 24px; }
-  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .form-group { display: flex; flex-direction: column; gap: 6px; }
-  .form-group.full { grid-column: 1 / -1; }
-  .form-label {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--g1);
-  }
-  .form-label span { color: var(--red); }
-  .form-input, .form-select, .form-textarea {
-    border: 2px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 14px;
-    font-family: inherit;
-    color: var(--text);
-    background: #fff;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    outline: none;
-  }
-  .form-input:focus, .form-select:focus, .form-textarea:focus {
-    border-color: var(--g3);
-    box-shadow: 0 0 0 3px rgba(46,139,46,0.15);
-  }
-  .form-input.error { border-color: var(--red); }
-  .error-msg { font-size: 12px; color: var(--red); margin-top: 2px; display: none; }
-  .error-msg.show { display: block; }
-  .form-textarea { resize: vertical; min-height: 80px; }
-  .modal-footer {
-    padding: 16px 24px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    gap: 12px;
-    justify-content: flex-end;
-  }
+  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); z-index:1000; align-items:center; justify-content:center; }
+  .modal-overlay.active { display:flex; }
+  .modal { background:white; border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,0.3); width:90%; max-width:680px; max-height:90vh; overflow-y:auto; animation:modalIn 0.3s ease; }
+  @keyframes modalIn { from{opacity:0;transform:scale(0.9) translateY(-20px);} to{opacity:1;transform:none;} }
+  .modal-header { background:linear-gradient(135deg,var(--g1),var(--g2)); color:white; padding:20px 24px; border-radius:16px 16px 0 0; display:flex; align-items:center; justify-content:space-between; }
+  .modal-title { font-size:18px; font-weight:700; }
+  .modal-close { background:rgba(255,255,255,0.2); border:none; color:white; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center; transition:background 0.2s; }
+  .modal-close:hover { background:rgba(255,255,255,0.35); }
+  .modal-body { padding:24px; }
+  .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .form-group { display:flex; flex-direction:column; gap:6px; }
+  .form-group.full { grid-column:1/-1; }
+  .form-label { font-size:13px; font-weight:600; color:var(--g1); }
+  .form-label span { color:var(--red); }
+  .form-input,.form-select,.form-textarea { border:2px solid var(--border); border-radius:8px; padding:10px 14px; font-size:14px; font-family:inherit; color:var(--text); background:#fff; transition:border-color 0.2s,box-shadow 0.2s; outline:none; }
+  .form-input:focus,.form-select:focus,.form-textarea:focus { border-color:var(--g3); box-shadow:0 0 0 3px rgba(46,139,46,0.15); }
+  .form-input.error { border-color:var(--red); }
+  .error-msg { font-size:12px; color:var(--red); margin-top:2px; display:none; }
+  .error-msg.show { display:block; }
+  .form-textarea { resize:vertical; min-height:80px; }
+  .modal-footer { padding:16px 24px; border-top:1px solid var(--border); display:flex; gap:12px; justify-content:flex-end; }
 
   /* ===== BUTTONS ===== */
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    border: none;
-    border-radius: 10px;
-    padding: 10px 20px;
-    font-size: 14px;
-    font-family: inherit;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-decoration: none;
-    white-space: nowrap;
-  }
-  .btn:hover { transform: translateY(-1px); }
-  .btn:active { transform: translateY(0); }
-  .btn-primary {
-    background: linear-gradient(135deg, var(--g3), var(--g2));
-    color: white;
-    box-shadow: 0 4px 12px rgba(46,139,46,0.35);
-  }
-  .btn-primary:hover { background: linear-gradient(135deg, var(--g2), var(--g1)); box-shadow: 0 6px 16px rgba(46,139,46,0.45); }
-  .btn-secondary {
-    background: var(--gl);
-    color: var(--g1);
-    border: 2px solid var(--border);
-  }
-  .btn-secondary:hover { background: var(--gll); border-color: var(--g3); }
-  .btn-danger {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
-    color: white;
-    box-shadow: 0 4px 12px rgba(192,57,43,0.3);
-  }
-  .btn-danger:hover { background: linear-gradient(135deg, #c0392b, #a93226); }
-  .btn-gold {
-    background: linear-gradient(135deg, var(--gold), var(--goldd));
-    color: white;
-    box-shadow: 0 4px 12px rgba(212,160,23,0.3);
-  }
-  .btn-gold:hover { background: linear-gradient(135deg, var(--goldd), #996b00); }
-  .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 7px; }
-  .btn-icon { padding: 7px; border-radius: 8px; }
+  .btn { display:inline-flex; align-items:center; gap:6px; border:none; border-radius:10px; padding:10px 20px; font-size:14px; font-family:inherit; font-weight:600; cursor:pointer; transition:all 0.2s; text-decoration:none; white-space:nowrap; }
+  .btn:hover { transform:translateY(-1px); }
+  .btn:active { transform:translateY(0); }
+  .btn-primary { background:linear-gradient(135deg,var(--g3),var(--g2)); color:white; box-shadow:0 4px 12px rgba(46,139,46,0.35); }
+  .btn-primary:hover { background:linear-gradient(135deg,var(--g2),var(--g1)); box-shadow:0 6px 16px rgba(46,139,46,0.45); }
+  .btn-secondary { background:var(--gl); color:var(--g1); border:2px solid var(--border); }
+  .btn-secondary:hover { background:var(--gll); border-color:var(--g3); }
+  .btn-danger { background:linear-gradient(135deg,#e74c3c,#c0392b); color:white; box-shadow:0 4px 12px rgba(192,57,43,0.3); }
+  .btn-danger:hover { background:linear-gradient(135deg,#c0392b,#a93226); }
+  .btn-gold { background:linear-gradient(135deg,var(--gold),var(--goldd)); color:white; box-shadow:0 4px 12px rgba(212,160,23,0.3); }
+  .btn-gold:hover { background:linear-gradient(135deg,var(--goldd),#996b00); }
+  .btn-sm { padding:6px 12px; font-size:12px; border-radius:7px; }
+  .btn-icon { padding:7px; border-radius:8px; }
 
   /* ===== TOOLBAR ===== */
-  .toolbar {
-    background: white;
-    padding: 16px 24px;
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    flex-wrap: wrap;
-    border-bottom: 2px solid var(--border);
-    box-shadow: 0 2px 8px rgba(0,100,0,0.08);
-  }
-  .toolbar-group { display: flex; gap: 8px; align-items: center; }
-  .toolbar-sep { width: 1px; height: 36px; background: var(--border); }
+  .toolbar { background:white; padding:16px 24px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; border-bottom:2px solid var(--border); box-shadow:0 2px 8px rgba(0,100,0,0.08); }
+  .toolbar-group { display:flex; gap:8px; align-items:center; }
+  .toolbar-sep { width:1px; height:36px; background:var(--border); }
 
-  /* ===== SEARCH / FILTER BAR ===== */
-  .filter-bar {
-    background: var(--gll);
-    padding: 14px 24px;
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    flex-wrap: wrap;
-    border-bottom: 1px solid var(--border);
-  }
-  .search-wrap {
-    position: relative;
-    flex: 1;
-    min-width: 200px;
-  }
-  .search-wrap .ico { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--g3); font-size: 16px; }
-  .search-input {
-    width: 100%;
-    border: 2px solid var(--border);
-    border-radius: 10px;
-    padding: 10px 14px 10px 38px;
-    font-size: 14px;
-    font-family: inherit;
-    background: white;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .search-input:focus { border-color: var(--g3); }
-  .filter-select {
-    border: 2px solid var(--border);
-    border-radius: 10px;
-    padding: 9px 14px;
-    font-size: 14px;
-    font-family: inherit;
-    background: white;
-    outline: none;
-    color: var(--text);
-    min-width: 160px;
-  }
-  .filter-select:focus { border-color: var(--g3); }
+  /* ===== FILTER BAR ===== */
+  .filter-bar { background:var(--gll); padding:14px 24px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; border-bottom:1px solid var(--border); }
+  .search-wrap { position:relative; flex:1; min-width:200px; }
+  .search-wrap .ico { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--g3); font-size:16px; }
+  .search-input { width:100%; border:2px solid var(--border); border-radius:10px; padding:10px 14px 10px 38px; font-size:14px; font-family:inherit; background:white; outline:none; transition:border-color 0.2s; }
+  .search-input:focus { border-color:var(--g3); }
+  .filter-select { border:2px solid var(--border); border-radius:10px; padding:9px 14px; font-size:14px; font-family:inherit; background:white; outline:none; color:var(--text); min-width:160px; }
+  .filter-select:focus { border-color:var(--g3); }
 
   /* ===== NOMINATION COUNT PANEL ===== */
-  .count-panel {
-    background: white;
-    border-right: 2px solid var(--border);
-    min-width: 260px;
-    max-height: calc(100vh - 260px);
-    overflow-y: auto;
-    display: none;
-  }
-  .count-panel.open { display: block; }
-  .count-panel-header {
-    background: var(--g1);
-    color: white;
-    padding: 14px 16px;
-    font-weight: 700;
-    font-size: 14px;
-    position: sticky;
-    top: 0;
-    z-index: 2;
-  }
-  .count-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 16px;
-    border-bottom: 1px solid var(--border);
-    font-size: 13px;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .count-item:hover { background: var(--gl); }
-  .count-item.highlighted { background: #fff3e0; }
-  .count-badge {
-    background: var(--g3);
-    color: white;
-    border-radius: 12px;
-    padding: 2px 10px;
-    font-size: 12px;
-    font-weight: 700;
-    min-width: 28px;
-    text-align: center;
-  }
-  .count-badge.multi { background: var(--red); }
+  .count-panel { background:white; border-right:2px solid var(--border); min-width:260px; max-height:calc(100vh - 260px); overflow-y:auto; display:none; }
+  .count-panel.open { display:block; }
+  .count-panel-header { background:var(--g1); color:white; padding:14px 16px; font-weight:700; font-size:14px; position:sticky; top:0; z-index:2; }
+  .count-item { display:flex; align-items:center; justify-content:space-between; padding:10px 16px; border-bottom:1px solid var(--border); font-size:13px; cursor:pointer; transition:background 0.15s; }
+  .count-item:hover { background:var(--gl); }
+  .count-item.highlighted { background:#fff3e0; }
+  .count-badge { background:var(--g3); color:white; border-radius:12px; padding:2px 10px; font-size:12px; font-weight:700; min-width:28px; text-align:center; }
+  .count-badge.multi { background:var(--red); }
 
   /* ===== MAIN LAYOUT ===== */
-  .main-layout {
-    display: flex;
-    min-height: calc(100vh - 200px);
-  }
-  .table-area { flex: 1; overflow-x: auto; }
+  .main-layout { display:flex; min-height:calc(100vh - 200px); }
+  .table-area { flex:1; overflow-x:auto; }
 
   /* ===== TABLE ===== */
-  .records-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-  }
-  .records-table thead th {
-    background: linear-gradient(135deg, var(--g1), var(--g2));
-    color: white;
-    padding: 13px 10px;
-    text-align: center;
-    font-weight: 700;
-    white-space: nowrap;
-    position: sticky;
-    top: 0;
-    z-index: 5;
-    border-right: 1px solid rgba(255,255,255,0.15);
-    font-size: 13px;
-  }
-  .records-table thead th:last-child { border-right: none; }
-  .records-table tbody tr {
-    border-bottom: 1px solid #e0f0e0;
-    transition: background 0.15s;
-  }
-  .records-table tbody tr:nth-child(even) { background: #f5fbf5; }
-  .records-table tbody tr:hover { background: #d4f0d4 !important; }
-  .records-table tbody td {
-    padding: 10px 10px;
-    vertical-align: top;
-    border-right: 1px solid #e8f4e8;
-    color: var(--text);
-    line-height: 1.4;
-  }
-  .records-table tbody td.sn { text-align: center; font-weight: 700; color: var(--g2); min-width: 45px; }
-  .records-table tbody td.name-cell { font-weight: 600; min-width: 180px; color: var(--g1); }
-  .records-table tbody td.program-cell { min-width: 320px; max-width: 420px; }
-  .records-table tbody td.actions-cell { white-space: nowrap; min-width: 90px; text-align: center; }
-  .no-print { }
-  td.no-print, th.no-print { }
+  .records-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .records-table thead th { background:linear-gradient(135deg,var(--g1),var(--g2)); color:white; padding:13px 10px; text-align:center; font-weight:700; white-space:nowrap; position:sticky; top:0; z-index:5; border-right:1px solid rgba(255,255,255,0.15); font-size:13px; }
+  .records-table thead th:last-child { border-right:none; }
+  .records-table tbody tr { border-bottom:1px solid #e0f0e0; transition:background 0.15s; }
+  .records-table tbody tr:nth-child(even) { background:#f5fbf5; }
+  .records-table tbody tr:hover { background:#d4f0d4 !important; }
+  .records-table tbody td { padding:10px; vertical-align:top; border-right:1px solid #e8f4e8; color:var(--text); line-height:1.4; }
+  .records-table tbody td.sn { text-align:center; font-weight:700; color:var(--g2); min-width:45px; }
+  .records-table tbody td.name-cell { font-weight:600; min-width:180px; color:var(--g1); }
+  .records-table tbody td.program-cell { min-width:320px; max-width:420px; }
+  .records-table tbody td.actions-cell { white-space:nowrap; min-width:90px; text-align:center; }
 
   /* ===== ACTION BUTTONS IN TABLE ===== */
-  .act-btn {
-    border: none;
-    border-radius: 6px;
-    padding: 5px 8px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.2s;
-    margin: 1px;
-  }
-  .act-btn:hover { transform: scale(1.1); }
-  .act-edit { background: #e8f4ff; color: #1565c0; }
-  .act-edit:hover { background: #1565c0; color: white; }
-  .act-del { background: #fff0f0; color: #c0392b; }
-  .act-del:hover { background: #c0392b; color: white; }
+  .act-btn { border:none; border-radius:6px; padding:5px 8px; cursor:pointer; font-size:14px; transition:all 0.2s; margin:1px; }
+  .act-btn:hover { transform:scale(1.1); }
+  .act-edit { background:#e8f4ff; color:#1565c0; }
+  .act-edit:hover { background:#1565c0; color:white; }
+  .act-del { background:#fff0f0; color:#c0392b; }
+  .act-del:hover { background:#c0392b; color:white; }
 
   /* ===== EMPTY STATE ===== */
-  .empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--textl);
-  }
-  .empty-icon { font-size: 60px; margin-bottom: 16px; }
-  .empty-text { font-size: 18px; font-weight: 600; color: var(--g2); }
+  .empty-state { text-align:center; padding:60px 20px; color:var(--textl); }
+  .empty-icon { font-size:60px; margin-bottom:16px; }
+  .empty-text { font-size:18px; font-weight:600; color:var(--g2); }
 
   /* ===== PAGINATION ===== */
-  .pagination {
-    padding: 16px 24px;
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    justify-content: space-between;
-    background: white;
-    border-top: 1px solid var(--border);
-    flex-wrap: wrap;
-  }
-  .page-info { font-size: 13px; color: var(--textl); }
-  .page-btns { display: flex; gap: 4px; }
-  .page-btn {
-    border: 2px solid var(--border);
-    background: white;
-    border-radius: 8px;
-    padding: 6px 12px;
-    font-size: 13px;
-    font-family: inherit;
-    cursor: pointer;
-    transition: all 0.2s;
-    color: var(--text);
-  }
-  .page-btn:hover { border-color: var(--g3); background: var(--gl); }
-  .page-btn.active { background: var(--g2); color: white; border-color: var(--g2); }
-  .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .pagination { padding:16px 24px; display:flex; gap:8px; align-items:center; justify-content:space-between; background:white; border-top:1px solid var(--border); flex-wrap:wrap; }
+  .page-info { font-size:13px; color:var(--textl); }
+  .page-btns { display:flex; gap:4px; }
+  .page-btn { border:2px solid var(--border); background:white; border-radius:8px; padding:6px 12px; font-size:13px; font-family:inherit; cursor:pointer; transition:all 0.2s; color:var(--text); }
+  .page-btn:hover { border-color:var(--g3); background:var(--gl); }
+  .page-btn.active { background:var(--g2); color:white; border-color:var(--g2); }
+  .page-btn:disabled { opacity:0.4; cursor:not-allowed; }
 
   /* ===== LOGIN ===== */
-  .login-overlay {
-    position: fixed;
-    inset: 0;
-    background: linear-gradient(135deg, var(--g1) 0%, var(--g2) 50%, #1a3a1a 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-  }
-  .login-box {
-    background: white;
-    border-radius: 20px;
-    padding: 40px;
-    width: 400px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    text-align: center;
-  }
-  .login-logo { font-size: 52px; margin-bottom: 12px; }
-  .login-title { font-size: 22px; font-weight: 800; color: var(--g1); margin-bottom: 4px; }
-  .login-sub { font-size: 16px; font-weight:600; color: var(--textl); margin-bottom: 8px; }
-  .login-form { display: flex; flex-direction: column; gap: 14px; text-align: left; }
-  .login-role-tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 4px;
-  }
-  .role-tab {
-    flex: 1;
-    padding: 8px;
-    border: 2px solid var(--border);
-    border-radius: 8px;
-    background: white;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 600;
-    font-family: inherit;
-    transition: all 0.2s;
-    color: var(--textl);
-  }
-  .role-tab.active { border-color: var(--g3); background: var(--gl); color: var(--g1); }
+  .login-overlay { position:fixed; inset:0; background:linear-gradient(135deg,var(--g1) 0%,var(--g2) 50%,#1a3a1a 100%); display:flex; align-items:center; justify-content:center; z-index:9999; }
+  .login-box { background:white; border-radius:20px; padding:40px; width:420px; box-shadow:0 20px 60px rgba(0,0,0,0.3); text-align:center; }
+  .login-logo-wrap { display:flex; flex-direction:column; align-items:center; margin-bottom:16px; }
+  .login-emblem { width:72px; height:72px; margin-bottom:10px; filter:drop-shadow(0 2px 8px rgba(0,80,0,0.25)); }
+  .login-gov-name { font-size:17px; font-weight:800; color:var(--g1); line-height:1.2; margin-bottom:2px; }
+  .login-ministry-name { font-size:15px; font-weight:700; color:var(--g2); line-height:1.2; margin-bottom:2px; }
+  .login-system-name { font-size:13px; font-weight:600; color:var(--textl); line-height:1.3; margin-top:4px; padding:6px 12px; background:var(--gl); border-radius:8px; border:1px solid var(--border); }
+  .login-form { display:flex; flex-direction:column; gap:14px; text-align:left; margin-top:20px; }
+  .login-role-tabs { display:flex; gap:8px; margin-bottom:4px; }
+  .role-tab { flex:1; padding:8px; border:2px solid var(--border); border-radius:8px; background:white; cursor:pointer; font-size:12px; font-weight:600; font-family:inherit; transition:all 0.2s; color:var(--textl); }
+  .role-tab.active { border-color:var(--g3); background:var(--gl); color:var(--g1); }
 
   /* ===== TOAST ===== */
-  .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
-  .toast {
-    background: white;
-    border-radius: 10px;
-    padding: 14px 18px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 14px;
-    font-weight: 500;
-    animation: toastIn 0.3s ease;
-    border-left: 4px solid;
-    max-width: 320px;
-  }
-  @keyframes toastIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
-  .toast.success { border-color: var(--g3); }
-  .toast.error { border-color: var(--red); }
-  .toast.info { border-color: #2196f3; }
-  .toast-icon { font-size: 20px; }
+  .toast-container { position:fixed; top:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:8px; }
+  .toast { background:white; border-radius:10px; padding:14px 18px; box-shadow:0 8px 24px rgba(0,0,0,0.2); display:flex; align-items:center; gap:10px; font-size:14px; font-weight:500; animation:toastIn 0.3s ease; border-left:4px solid; max-width:320px; }
+  @keyframes toastIn { from{opacity:0;transform:translateX(20px);} to{opacity:1;transform:none;} }
+  .toast.success { border-color:var(--g3); }
+  .toast.error { border-color:var(--red); }
+  .toast.info { border-color:#2196f3; }
+  .toast-icon { font-size:20px; }
 
-  /* ===== PRINT STYLES ===== */
+  /* ===== USERS MANAGEMENT MODAL ===== */
+  .users-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .users-table th { background:linear-gradient(135deg,var(--g1),var(--g2)); color:white; padding:10px; text-align:left; font-weight:700; }
+  .users-table td { padding:10px 12px; border-bottom:1px solid var(--border); vertical-align:middle; }
+  .users-table tr:hover td { background:var(--gl); }
+  .badge-role { display:inline-block; padding:2px 10px; border-radius:12px; font-size:11px; font-weight:700; }
+  .badge-head { background:#fff3cd; color:#856404; }
+  .badge-user { background:#d1ecf1; color:#0c5460; }
+
+  /* ===== PRINT ===== */
   @media print {
-    .no-print, .toolbar, .filter-bar, .pagination, .stats-bar { display: none !important; }
-    .header { background: white !important; color: black !important; box-shadow: none; }
-    .header-inner { border-bottom: 2px solid #333; padding-bottom: 12px; }
-    .main-title { color: black !important; text-shadow: none; }
-    .office-name, .sub-title, .year-badge { color: #333 !important; }
-    .logo-circle { box-shadow: none; border: 2px solid #333; background: #f0f0f0; }
-    .login-overlay { display: none !important; }
-    .main-layout { min-height: auto; }
-    body { background: white; }
-    .records-table thead th { background: #1a6b1a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .records-table tbody tr:nth-child(even) { background: #f5fbf5 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .count-panel { display: none !important; }
-    .modal-overlay { display: none !important; }
-    .print-header { display: block !important; }
-    .print-footer { display: block !important; }
-    @page { margin: 1.5cm; size: A4 landscape; }
+    .no-print,.toolbar,.filter-bar,.pagination,.stats-bar { display:none !important; }
+    .header { background:white !important; color:black !important; box-shadow:none; }
+    .header-inner { border-bottom:2px solid #333; padding-bottom:12px; }
+    .main-title { color:black !important; text-shadow:none; }
+    .office-name,.sub-title,.year-badge { color:#333 !important; }
+    .login-overlay { display:none !important; }
+    .main-layout { min-height:auto; }
+    body { background:white; }
+    .records-table thead th { background:#1a6b1a !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .records-table tbody tr:nth-child(even) { background:#f5fbf5 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .count-panel { display:none !important; }
+    .modal-overlay { display:none !important; }
+    @page { margin:1.5cm; size:A4 landscape; }
   }
-  .print-header, .print-footer { display: none; }
 
-  /* ===== SCROLLBAR ===== */
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: #f0f0f0; }
-  ::-webkit-scrollbar-thumb { background: var(--g3); border-radius: 3px; }
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-track { background:#f0f0f0; }
+  ::-webkit-scrollbar-thumb { background:var(--g3); border-radius:3px; }
 
-  /* confirm modal */
-  .confirm-modal { max-width: 420px; }
-  .confirm-body { padding: 28px 24px; text-align: center; }
-  .confirm-icon { font-size: 52px; margin-bottom: 12px; }
-  .confirm-msg { font-size: 16px; color: var(--text); line-height: 1.5; }
-  .admin-pass-check { margin-top: 16px; display: none; }
+  .confirm-modal { max-width:420px; }
+  .confirm-body { padding:28px 24px; text-align:center; }
+  .confirm-icon { font-size:52px; margin-bottom:12px; }
+  .confirm-msg { font-size:16px; color:var(--text); line-height:1.5; }
+  .admin-pass-check { margin-top:16px; display:none; }
 
-  .pill {
-    display: inline-block;
-    background: var(--gl);
-    border: 1px solid var(--border);
-    color: var(--g1);
-    border-radius: 12px;
-    padding: 2px 10px;
-    font-size: 11px;
-    font-weight: 600;
-  }
-  .pill-multi { background: #fff3e0; border-color: #ffa500; color: #b86b00; }
+  .pill { display:inline-block; background:var(--gl); border:1px solid var(--border); color:var(--g1); border-radius:12px; padding:2px 10px; font-size:11px; font-weight:600; }
+  .pill-multi { background:#fff3e0; border-color:#ffa500; color:#b86b00; }
+  .import-area { border:2px dashed var(--border); border-radius:12px; padding:28px; text-align:center; cursor:pointer; transition:all 0.2s; }
+  .import-area:hover { border-color:var(--g3); background:var(--gll); }
+  .import-icon { font-size:40px; margin-bottom:8px; }
 
-  .import-area {
-    border: 2px dashed var(--border);
-    border-radius: 12px;
-    padding: 28px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .import-area:hover { border-color: var(--g3); background: var(--gll); }
-  .import-icon { font-size: 40px; margin-bottom: 8px; }
+  .pass-toggle-wrap { position:relative; }
+  .pass-toggle-wrap input { padding-right:44px; }
+  .pass-toggle-btn { position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:18px; color:var(--g3); }
 </style>
 </head>
 <body>
@@ -642,22 +221,29 @@
 <!-- LOGIN OVERLAY -->
 <div class="login-overlay" id="loginOverlay">
   <div class="login-box">
-    <div class="login-logo"> </div>
-	<div class="login-sub">नेपाल सरकार<br>वन तथा वातावरण मन्त्रालय</div>
-    <div class="login-title">विदेश भ्रमण रेकर्ड व्यवस्थापन प्रणाली</div>
+    <div class="login-logo-wrap">
+      <img class="login-emblem" src="data:image/png;base64,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" alt="नेपाल सरकार">
+      <div class="login-gov-name">नेपाल सरकार</div>
+      <div class="login-ministry-name">वन तथा वातावरण मन्त्रालय</div>
+      <div class="login-system-name">विदेश भ्रमण रेकर्ड व्यवस्थापन प्रणाली</div>
+    </div>
     <div class="login-form">
       <div class="login-role-tabs">
         <button class="role-tab active" onclick="selectRole('admin',this)">👑 Admin</button>
         <button class="role-tab" onclick="selectRole('head',this)">📋 Head</button>
         <button class="role-tab" onclick="selectRole('user',this)">👤 User</button>
       </div>
-      <div class="form-group" id="passGroup" style="display:none;">
-        <label class="form-label">पासवर्ड</label>
-        <div style="position:relative;">
-          <input type="password" class="form-input" id="loginPass" placeholder="पासवर्ड प्रविष्ट गर्नुहोस्" onkeydown="if(event.key==='Enter')doLogin()" style="padding-right:44px;">
-          <button onclick="togglePassVis()" type="button" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;color:var(--g3);" id="eyeBtn">👁️</button>
+      <div class="form-group" id="usernameGroup" style="display:none;">
+        <label class="form-label">युजरनेम <span>*</span></label>
+        <input type="text" class="form-input" id="loginUsername" placeholder="युजरनेम प्रविष्ट गर्नुहोस्" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div class="form-group" id="passGroup">
+        <label class="form-label">पासवर्ड <span>*</span></label>
+        <div class="pass-toggle-wrap">
+          <input type="password" class="form-input" id="loginPass" placeholder="पासवर्ड प्रविष्ट गर्नुहोस्" onkeydown="if(event.key==='Enter')doLogin()">
+          <button onclick="togglePassVis('loginPass','eyeBtn')" type="button" class="pass-toggle-btn" id="eyeBtn">👁️</button>
         </div>
-        <div class="error-msg" id="loginErr">❌ गलत पासवर्ड!</div>
+        <div class="error-msg" id="loginErr">❌ गलत प्रमाणपत्र!</div>
       </div>
       <button class="btn btn-primary" style="width:100%;justify-content:center;font-size:16px;" onclick="doLogin()">🔐 लग इन</button>
     </div>
@@ -667,7 +253,7 @@
 <!-- TOAST -->
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- MODAL: ADD/EDIT -->
+<!-- MODAL: ADD/EDIT RECORD -->
 <div class="modal-overlay" id="formModal">
   <div class="modal">
     <div class="modal-header">
@@ -688,9 +274,7 @@
         </div>
         <div class="form-group">
           <label class="form-label">देश <span>*</span></label>
-          <select class="form-select" id="f_desh">
-            <option value="">— देश छान्नुहोस् —</option>
-          </select>
+          <select class="form-select" id="f_desh"><option value="">— देश छान्नुहोस् —</option></select>
           <div class="error-msg" id="e_desh">देश छान्नुहोस्</div>
         </div>
         <div class="form-group">
@@ -772,6 +356,103 @@
   </div>
 </div>
 
+<!-- MODAL: USER MANAGEMENT (Admin only) -->
+<div class="modal-overlay" id="usersModal">
+  <div class="modal" style="max-width:700px;">
+    <div class="modal-header">
+      <div class="modal-title">⚙️ युजर व्यवस्थापन</div>
+      <button class="modal-close" onclick="closeUsersModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Create user form -->
+      <div style="background:var(--gll);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:20px;">
+        <div style="font-size:14px;font-weight:700;color:var(--g1);margin-bottom:12px;">➕ नयाँ युजर थप्नुहोस्</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;align-items:end;">
+          <div class="form-group">
+            <label class="form-label">युजरनेम <span>*</span></label>
+            <input type="text" class="form-input" id="nu_username" placeholder="युजरनेम">
+          </div>
+          <div class="form-group">
+            <label class="form-label">पासवर्ड <span>*</span></label>
+            <input type="password" class="form-input" id="nu_password" placeholder="पासवर्ड">
+          </div>
+          <div class="form-group">
+            <label class="form-label">भूमिका <span>*</span></label>
+            <select class="form-select" id="nu_role">
+              <option value="head">📋 Head</option>
+              <option value="user">👤 User</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-top:12px;">
+          <button class="btn btn-primary btn-sm" onclick="createUser()">➕ युजर सिर्जना गर्नुहोस्</button>
+        </div>
+      </div>
+      <!-- Change admin password -->
+      <div style="background:#fff8e1;border:1px solid #ffc107;border-radius:10px;padding:16px;margin-bottom:20px;">
+        <div style="font-size:14px;font-weight:700;color:#7d5800;margin-bottom:12px;">🔑 Admin पासवर्ड परिवर्तन</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;align-items:end;">
+          <div class="form-group">
+            <label class="form-label">वर्तमान पासवर्ड</label>
+            <input type="password" class="form-input" id="ap_current" placeholder="हालको पासवर्ड">
+          </div>
+          <div class="form-group">
+            <label class="form-label">नयाँ पासवर्ड</label>
+            <input type="password" class="form-input" id="ap_new" placeholder="नयाँ पासवर्ड">
+          </div>
+          <div class="form-group">
+            <label class="form-label">पुनः नयाँ पासवर्ड</label>
+            <input type="password" class="form-input" id="ap_confirm" placeholder="दोहोर्याउनुहोस्">
+          </div>
+        </div>
+        <div style="margin-top:12px;">
+          <button class="btn btn-gold btn-sm" onclick="changeAdminPassword()">🔑 पासवर्ड परिवर्तन गर्नुहोस्</button>
+        </div>
+      </div>
+      <!-- Users list -->
+      <div>
+        <div style="font-size:14px;font-weight:700;color:var(--g1);margin-bottom:10px;">👥 युजरहरूको सूची</div>
+        <div id="usersList"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeUsersModal()">बन्द</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: EDIT USER (Admin only) -->
+<div class="modal-overlay" id="editUserModal">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <div class="modal-title">✏️ युजर सम्पादन</div>
+      <button class="modal-close" onclick="document.getElementById('editUserModal').classList.remove('active')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="eu_id">
+      <div class="form-group" style="margin-bottom:14px;">
+        <label class="form-label">युजरनेम</label>
+        <input type="text" class="form-input" id="eu_username" placeholder="युजरनेम">
+      </div>
+      <div class="form-group" style="margin-bottom:14px;">
+        <label class="form-label">नयाँ पासवर्ड (खाली छोड्नुहोस् यदि परिवर्तन नगर्ने)</label>
+        <input type="password" class="form-input" id="eu_password" placeholder="नयाँ पासवर्ड">
+      </div>
+      <div class="form-group">
+        <label class="form-label">भूमिका</label>
+        <select class="form-select" id="eu_role">
+          <option value="head">📋 Head</option>
+          <option value="user">👤 User</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="document.getElementById('editUserModal').classList.remove('active')">रद्द</button>
+      <button class="btn btn-primary" onclick="saveEditUser()">💾 सुरक्षित</button>
+    </div>
+  </div>
+</div>
+
 <!-- HEADER -->
 <div class="header" id="mainHeader">
   <div class="header-inner">
@@ -784,11 +465,9 @@
       </div>
     </div>
     <div class="header-title">
-      <div class="main-title">विदेश भ्रमण व्यवस्थापन प्रणाली</div>
+      <div class="main-title">कर्मचारी मनोनयन रेकर्ड व्यवस्थापन प्रणाली</div>
       <div class="sub-title">मन्त्रालय तथा मातहतका निकायबाट विदेश भ्रमण जाने पदाधिकारी एवं कर्मचारीहरुको विवरण</div>
-      <div class="year-badge">
-        📅 साल: <input type="text" class="year-input" id="yearField" value="२०८२–२०८३">
-      </div>
+      <div class="year-badge">📅 साल: <input type="text" class="year-input" id="yearField" value="२०८२–२०८३"></div>
     </div>
     <div class="header-right">
       <div class="role-badge" id="roleBadge" onclick="doLogout()">
@@ -796,6 +475,7 @@
         <span id="roleLabel">Admin</span>
         <span style="font-size:10px;opacity:0.7">▼</span>
       </div>
+      <button class="users-btn" id="usersBtn" onclick="openUsersModal()">⚙️ युजर व्यवस्थापन</button>
     </div>
   </div>
   <div class="stats-bar">
@@ -809,7 +489,7 @@
 <!-- TOOLBAR -->
 <div class="toolbar no-print">
   <div class="toolbar-group">
-    <button class="btn btn-primary" id="addBtn" onclick="openAddModal()">➕ नयाँ थप्नुहोस्</button>
+    <button class="btn btn-primary" id="addBtn" onclick="openAddModal()" style="display:none">➕ नयाँ थप्नुहोस्</button>
   </div>
   <div class="toolbar-sep"></div>
   <div class="toolbar-group">
@@ -834,38 +514,24 @@
     <span class="ico">🔍</span>
     <input type="text" class="search-input" id="searchName" placeholder="कर्मचारीको नाम खोज्नुहोस्..." oninput="applyFilters()">
   </div>
-  <select class="filter-select" id="filterCountry" onchange="applyFilters()">
-    <option value="">🌍 सबै देश</option>
-  </select>
-  <select class="filter-select" id="filterNikaya" onchange="applyFilters()">
-    <option value="">🏢 सबै निकाय</option>
-  </select>
+  <select class="filter-select" id="filterCountry" onchange="applyFilters()"><option value="">🌍 सबै देश</option></select>
+  <select class="filter-select" id="filterNikaya" onchange="applyFilters()"><option value="">🏢 सबै निकाय</option></select>
   <button class="btn btn-secondary btn-sm" onclick="clearFilters()">✕ फिल्टर हटाउनुहोस्</button>
 </div>
 
 <!-- MAIN LAYOUT -->
 <div class="main-layout">
-  <!-- Nomination Count Panel -->
   <div class="count-panel" id="countPanel">
     <div class="count-panel-header">📊 मनोनयन गणना</div>
     <div id="countList"></div>
   </div>
-
-  <!-- Table Area -->
   <div class="table-area">
     <table class="records-table" id="recordsTable">
       <thead>
         <tr>
-          <th>क्र.सं.</th>
-          <th>नाम थर</th>
-          <th>पद</th>
-          <th>देश</th>
-          <th>अवधि</th>
-          <th>हाल कार्यरत निकाय</th>
-          <th>कार्यक्रम</th>
-          <th>निर्णय मिति</th>
-          <th>कैफियत</th>
-          <th class="no-print">कार्यहरू</th>
+          <th>क्र.सं.</th><th>नाम थर</th><th>पद</th><th>देश</th>
+          <th>अवधि</th><th>हाल कार्यरत निकाय</th><th>कार्यक्रम</th>
+          <th>निर्णय मिति</th><th>कैफियत</th><th class="no-print">कार्यहरू</th>
         </tr>
       </thead>
       <tbody id="tableBody"></tbody>
@@ -891,8 +557,9 @@
 
 <script>
 // ====================== DATA ======================
-const PASSWORDS = { admin: 'Mofe@2026#', head: 'Head@2026#', user: '' };
+let ADMIN_PASSWORD = 'Mofe@2026#';
 let currentRole = null;
+let currentUser = null; // for head/user logins
 let selectedRole = 'admin';
 let records = [];
 let filteredRecords = [];
@@ -900,6 +567,199 @@ let editingId = null;
 let confirmCallback = null;
 let currentPage = 1;
 let perPage = 25;
+
+// ====================== USER MANAGEMENT ======================
+function loadUsers() {
+  return JSON.parse(localStorage.getItem('appUsers') || '[]');
+}
+function saveUsers(users) {
+  localStorage.setItem('appUsers', JSON.stringify(users));
+}
+function loadAdminPass() {
+  return localStorage.getItem('adminPassword') || ADMIN_PASSWORD;
+}
+function saveAdminPass(p) {
+  localStorage.setItem('adminPassword', p);
+  ADMIN_PASSWORD = p;
+}
+
+// ====================== AUTH ======================
+function selectRole(role, el) {
+  selectedRole = role;
+  document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const ug = document.getElementById('usernameGroup');
+  const pg = document.getElementById('passGroup');
+  document.getElementById('loginErr').classList.remove('show');
+  if (role === 'admin') {
+    ug.style.display = 'none';
+    pg.style.display = '';
+  } else {
+    // head and user both need username + password
+    ug.style.display = '';
+    pg.style.display = '';
+  }
+}
+
+function togglePassVis(inputId, btnId) {
+  const inp = document.getElementById(inputId);
+  const btn = document.getElementById(btnId);
+  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+  else { inp.type = 'password'; btn.textContent = '👁️'; }
+}
+
+function doLogin() {
+  const pass = document.getElementById('loginPass').value;
+  const username = document.getElementById('loginUsername').value.trim();
+  const err = document.getElementById('loginErr');
+  err.classList.remove('show');
+
+  if (selectedRole === 'admin') {
+    const adminPass = loadAdminPass();
+    if (pass !== adminPass) { err.textContent = '❌ गलत Admin पासवर्ड!'; err.classList.add('show'); return; }
+    currentRole = 'admin';
+    currentUser = 'admin';
+  } else {
+    // head or user: check username + password
+    if (!username) { err.textContent = '❌ युजरनेम आवश्यक छ!'; err.classList.add('show'); return; }
+    if (!pass) { err.textContent = '❌ पासवर्ड आवश्यक छ!'; err.classList.add('show'); return; }
+    const users = loadUsers();
+    const found = users.find(u => u.username === username && u.password === pass && u.role === selectedRole);
+    if (!found) { err.textContent = '❌ गलत युजरनेम वा पासवर्ड!'; err.classList.add('show'); return; }
+    currentRole = found.role;
+    currentUser = found.username;
+  }
+
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginUsername').value = '';
+  document.getElementById('loginOverlay').style.display = 'none';
+  updateRoleBadge();
+  updatePermissions();
+  init();
+}
+
+function doLogout() {
+  if (!confirm('लग आउट गर्ने?')) return;
+  currentRole = null; currentUser = null;
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginUsername').value = '';
+  document.getElementById('loginOverlay').style.display = 'flex';
+  // Reset to admin tab
+  selectRole('admin', document.querySelector('.role-tab'));
+  document.querySelectorAll('.role-tab').forEach((t,i)=>{ if(i===0) t.classList.add('active'); else t.classList.remove('active'); });
+}
+
+function updateRoleBadge() {
+  const labels = {admin:'👑 Admin', head:'📋 Head', user:'👤 User'};
+  const dotCls = {admin:'dot-admin', head:'dot-head', user:'dot-user'};
+  const display = currentUser && currentUser !== 'admin' ? labels[currentRole] + ' (' + currentUser + ')' : labels[currentRole];
+  document.getElementById('roleLabel').textContent = display;
+  const dot = document.getElementById('roleDot');
+  dot.className = 'role-dot ' + dotCls[currentRole];
+}
+
+function updatePermissions() {
+  const isAdmin = currentRole === 'admin';
+  document.getElementById('addBtn').style.display = isAdmin ? '' : 'none';
+  document.getElementById('deleteAllBtn').style.display = isAdmin ? '' : 'none';
+  document.getElementById('usersBtn').style.display = isAdmin ? '' : 'none';
+}
+
+// ====================== USERS MODAL ======================
+function openUsersModal() {
+  if (currentRole !== 'admin') { showToast('केवल Admin ले यो गर्न सक्छ!', 'error'); return; }
+  renderUsersList();
+  document.getElementById('usersModal').classList.add('active');
+}
+function closeUsersModal() {
+  document.getElementById('usersModal').classList.remove('active');
+}
+
+function renderUsersList() {
+  const users = loadUsers();
+  const el = document.getElementById('usersList');
+  if (users.length === 0) {
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--textl);">कुनै युजर छैन। माथिको फारम प्रयोग गरेर थप्नुहोस्।</div>';
+    return;
+  }
+  el.innerHTML = `<table class="users-table">
+    <thead><tr><th>#</th><th>युजरनेम</th><th>भूमिका</th><th>कार्यहरू</th></tr></thead>
+    <tbody>` + users.map((u,i) => `
+      <tr>
+        <td>${i+1}</td>
+        <td>${u.username}</td>
+        <td><span class="badge-role badge-${u.role}">${u.role === 'head' ? '📋 Head' : '👤 User'}</span></td>
+        <td>
+          <button class="btn btn-secondary btn-sm" onclick="openEditUser(${i})">✏️ सम्पादन</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteUser(${i})">🗑️ मेटाउनुहोस्</button>
+        </td>
+      </tr>`).join('') + `</tbody></table>`;
+}
+
+function createUser() {
+  const username = document.getElementById('nu_username').value.trim();
+  const password = document.getElementById('nu_password').value;
+  const role = document.getElementById('nu_role').value;
+  if (!username || !password) { showToast('युजरनेम र पासवर्ड आवश्यक छ!', 'error'); return; }
+  const users = loadUsers();
+  if (users.find(u => u.username === username)) { showToast('यो युजरनेम पहिले नै छ!', 'error'); return; }
+  users.push({username, password, role});
+  saveUsers(users);
+  document.getElementById('nu_username').value = '';
+  document.getElementById('nu_password').value = '';
+  renderUsersList();
+  showToast('युजर सिर्जना भयो!', 'success');
+}
+
+function deleteUser(idx) {
+  if (!confirm('यो युजर मेटाउने?')) return;
+  const users = loadUsers();
+  users.splice(idx, 1);
+  saveUsers(users);
+  renderUsersList();
+  showToast('युजर मेटाइयो!', 'info');
+}
+
+function openEditUser(idx) {
+  const users = loadUsers();
+  const u = users[idx];
+  document.getElementById('eu_id').value = idx;
+  document.getElementById('eu_username').value = u.username;
+  document.getElementById('eu_password').value = '';
+  document.getElementById('eu_role').value = u.role;
+  document.getElementById('editUserModal').classList.add('active');
+}
+
+function saveEditUser() {
+  const idx = parseInt(document.getElementById('eu_id').value);
+  const username = document.getElementById('eu_username').value.trim();
+  const password = document.getElementById('eu_password').value;
+  const role = document.getElementById('eu_role').value;
+  if (!username) { showToast('युजरनेम आवश्यक छ!', 'error'); return; }
+  const users = loadUsers();
+  users[idx].username = username;
+  users[idx].role = role;
+  if (password) users[idx].password = password;
+  saveUsers(users);
+  document.getElementById('editUserModal').classList.remove('active');
+  renderUsersList();
+  showToast('युजर अपडेट भयो!', 'success');
+}
+
+function changeAdminPassword() {
+  const current = document.getElementById('ap_current').value;
+  const newPass = document.getElementById('ap_new').value;
+  const confirm2 = document.getElementById('ap_confirm').value;
+  const adminPass = loadAdminPass();
+  if (current !== adminPass) { showToast('वर्तमान पासवर्ड गलत!', 'error'); return; }
+  if (!newPass) { showToast('नयाँ पासवर्ड खाली हुन सक्दैन!', 'error'); return; }
+  if (newPass !== confirm2) { showToast('नयाँ पासवर्डहरू मेल खाएनन्!', 'error'); return; }
+  saveAdminPass(newPass);
+  document.getElementById('ap_current').value = '';
+  document.getElementById('ap_new').value = '';
+  document.getElementById('ap_confirm').value = '';
+  showToast('Admin पासवर्ड परिवर्तन भयो!', 'success');
+}
 
 // ====================== COUNTRIES ======================
 const WORLD_COUNTRIES = [
@@ -923,7 +783,6 @@ const WORLD_COUNTRIES = [
   "Taiwan","Tajikistan","Tanzania","Thailand","Timor-Leste","Togo","Tonga","Trinidad and Tobago","Tunisia","Turkey",
   "Turkmenistan","Tuvalu","Uganda","Ukraine","United Arab Emirates","United Kingdom","United States","Uruguay",
   "Uzbekistan","Vanuatu","Vatican City","Venezuela","Vietnam","Yemen","Zambia","Zimbabwe",
-  // Additional specific locations from data
   "Addis Ababa, Ethiopia","Abu Dhabi, UAE","Bangkok, Thailand","Belem, Brazil","Bhutan","Bonn, Germany",
   "Bhubaneswar, India","Chongqing, China","Colombia","Colombo, Sri Lanka","Delhi, India","Dong Nai, Vietnam",
   "Fujian, China","Geneva, Switzerland","Hangzhou, China","Harare, Zimbabwe","Indonesia","Japan","Kigali, Rwanda",
@@ -934,7 +793,7 @@ const WORLD_COUNTRIES = [
   "Yeosu, Republic of Korea","Qatar","Samarkand, Uzbekistan","Dili, Timor-Leste","Bolivia","Arusha, Tanzania"
 ].sort();
 
-// ====================== INITIAL DATA (from Excel) ======================
+// ====================== INITIAL DATA ======================
 const INITIAL_DATA = [{"id": 1, "naam": "श्री सरोज कुमार चौधरी", "pad": "उप महानिर्देशक", "desh": "Shamakhi, Azerbaijan", "awadhi": "2२ देखि 2५ जुलाई सम्म, 202५", "nikaya": "वनस्पति विभाग, थापाथली", "prog": "Second Retreat of Chairs of UNFCCC Party Groupings and Selected Heads of Delegation", "miti": "2082-02-04", "kaifi": ""}, {"id": 2, "naam": "श्री श्याम प्रसाद न्यौपाने", "pad": "वरिष्ठ जलाधार व्यवस्थापन अधिकृत", "desh": "Addis, Ababa Ethiopia", "awadhi": "1 देखि 6 सेप्टेम्वर सम्म, 202५", "nikaya": "वृहत जलाधार व्यवस्थापन केन्द्र, गण्डकी, पोखरा ।", "prog": "Climate Week 2", "miti": "2082-07-04", "kaifi": ""}, {"id": 3, "naam": "श्री धर्मराज भट्ट", "pad": "शाखा अधिकृत", "desh": "Addis, Ababa Ethiopia", "awadhi": "1 देखि 4 सेप्टेम्वर सम्म, 202५", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Climate Week 2 (Capacity Building for Accessing Finance (Needs Based Climate Finance) and Pan-African Needs Based Climate Finance Market Place East, West and Southern Africa)", "miti": "2082-07-04", "kaifi": ""}, {"id": 4, "naam": "डा. प्रकाश सिंह थापा", "pad": "उप सचिव (प्रा.)", "desh": "Addis, Ababa Ethiopia", "awadhi": "1 देखि २ र ५ देखि ६ सेप्टेम्वर सम्म, 202५", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Climate Week 2 (Four Dialogue Under the UAE just Transition Work Programme and Sisth Global Dialogue and Investment-foucused event under sharm el-Sheikh Mitigation Ambition and Implementation work Programme)", "miti": "2082-07-04", "kaifi": ""}, {"id": 5, "naam": "श्री लक्ष्मी पौडेल", "pad": "शाखा अधिकृत", "desh": "Manila, Philippines", "awadhi": "3 देखि 4 सेप्टेम्वर सम्म, 202५", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Early Warning System Investment Planning and Climate Adapatation Investment Planning forum", "miti": "2082-07-04", "kaifi": ""}, {"id": 6, "naam": "श्री वेद कुमार ढकाल", "pad": "उप महानिर्देशक", "desh": "Abu Dhabi, UAE", "awadhi": "९ देखि १५ अक्टोवर सम्म, 202५", "nikaya": "राष्ट्रिय निकुञ्ज तथा वन्यजन्तु संरक्षण विभाग ।", "prog": "IUCN World Conservation Congress 2025", "miti": "2082-07-04", "kaifi": ""}, {"id": 7, "naam": "श्री नवराज पुडासैनी", "pad": "केन्द्र प्रमुख", "desh": "Bangkok, Thailand", "awadhi": "26 देखि 28 अगष्ट सम्म, 202५", "nikaya": "रेड कार्यान्वयन केन्द्र, ववरमहल ।", "prog": "Regional Workshop on Scaling solutions for Decoupling Agricultural Production from Deforestation in Asia-Pacific", "miti": "2082-07-04", "kaifi": ""}, {"id": 8, "naam": "श्री शिवजी शर्मा", "pad": "सि.डि.ई", "desh": "Japan", "awadhi": "१६ देखि १९ सेप्टेम्वर सम्म, 202५", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "The Workshop Program for support for development of reduction target for methane emission from organic waste in Nepal (ENNMO1)", "miti": "2082-07-04", "kaifi": ""}, {"id": 9, "naam": "श्री नारायण रायमाझी", "pad": "शाखा अधिकृत", "desh": "Japan", "awadhi": "१६ देखि १९ सेप्टेम्वर सम्म, 202५", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "The Workshop Program for support for development of reduction target for methane emission from organic waste in Nepal (ENNMO1)", "miti": "2082-07-04", "kaifi": ""}, {"id": 10, "naam": "श्री गणेश पौडेल", "pad": "सदस्य-सचिव", "desh": "Bangkok, Thailand", "awadhi": "२५ देखि २९ अगष्ट सम्म, 202५", "nikaya": "राष्ट्रपति चुरे तराई मधेश संरक्षण विकास समिति, खुमलटार ।", "prog": "Professional Traning Course Nature Based Solutions (Nbs) for Disaster Risk Reduction (DRR) in the Hindu Kush Himalayan Region", "miti": "2082-04-11", "kaifi": ""}, {"id": 11, "naam": "श्री ज्ञानराज सुवेदी", "pad": "महानिर्देशक", "desh": "Japan", "awadhi": "१६ देखि १९ सेप्टेम्वर सम्म, 202५", "nikaya": "वातावरण विभाग, ववरमहल ।", "prog": "The Workshop Program for support for development of reduction target for methane emission from organic waste in Nepal (ENNMO1)", "miti": "2082-11-04", "kaifi": ""}, {"id": 12, "naam": "श्री शोभा सुवेदी", "pad": "उप सचिव (प्रा.)", "desh": "Lusaka, Zambia", "awadhi": "8 देखि 11 अप्रिल सम्म, 202५", "nikaya": "सामुदायिक वन अध्ययन केन्द्र, ववरमहल ।", "prog": "NAP Expo 2025", "miti": "2082-11-04", "kaifi": ""}, {"id": 13, "naam": "श्री बिवेक बाईजु", "pad": "संरक्षण अधिकृत", "desh": "Thailand", "awadhi": "२७ देखि ३१ अक्टोवर सम्म, 202५", "nikaya": "सगरमाथा राष्ट्रिय निकुञ्ज कार्यालय, सोलुखुम्बु ।", "prog": "Training Programme on \"Air Quality Improvement\"", "miti": "2082-11-04", "kaifi": ""}, {"id": 14, "naam": "श्री महेश्वर प्रसाद निरौला", "pad": "संरक्षण अधिकृत", "desh": "Thailand", "awadhi": "२७ देखि ३१ अक्टोवर सम्म, 202५", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Training Programme on \"Air Quality Improvement\"", "miti": "2082-11-04", "kaifi": ""}, {"id": 15, "naam": "श्री सुजन ढकाल", "pad": "लेख अधिकृत", "desh": "China", "awadhi": "१४ देखि 2५अगष्ट सम्म, 202५", "nikaya": "वनस्पति विभाग, थापाथली", "prog": "Seminar on Ecosystem Conservation Management and Policy in the Context of Climate Change Response", "miti": "2082-12-04", "kaifi": ""}, {"id": 16, "naam": "श्री शुशिल पोखरेल", "pad": "जलाधार व्यवस्थापन अधिकृत", "desh": "China", "awadhi": "१४ देखि 2५अगष्ट सम्म, 202५", "nikaya": "वृहत जलाधार व्यवस्थापन केन्द्र, कर्णाली, जाजरकोट ।", "prog": "Seminar on Ecosystem Conservation Management and Policy in the Context of Climate Change Response", "miti": "2082-12-04", "kaifi": ""}, {"id": 17, "naam": "श्री धिरेन्द्र कुमार प्रधान", "pad": "सह सचिव (प्रा.)", "desh": "India", "awadhi": "११ देखि १५अगष्ट सम्म, 202५", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "The Learning Exposure Visit on Insurance Mechanism for Human Wildlife Conflict", "miti": "1३/4/2082", "kaifi": ""}, {"id": 18, "naam": "डा. सन्जीव कुमार राई", "pad": "सह सचिव (प्रा.)", "desh": "Chongqing University, China", "awadhi": "26 देखि 30अगष्ट सम्म, 202५", "nikaya": "वनस्पति विभाग, थापाथली", "prog": "International Workshop on Sustainable Use and Management of CITIES Listed Medicinal and Aromatic Plants of the Himalayas", "miti": "1३/4/2082", "kaifi": ""}, {"id": 19, "naam": "श्री राजेन्द्र ढुङ्गाना", "pad": "उप सचिव (प्रा.)", "desh": "India", "awadhi": "११ देखि १५अगष्ट सम्म, 202५", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "The Learning Exposure Visit on Insurance Mechanism for Human Wildlife Conflict", "miti": "1४/4/2082", "kaifi": ""}, {"id": 20, "naam": "श्री दीपक अधिकारी", "pad": "उप सचिव (लेखा)", "desh": "India", "awadhi": "११ देखि १५अगष्ट सम्म, 202५", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "The Learning Exposure Visit on Insurance Mechanism for Human Wildlife Conflict", "miti": "1४/4/2082", "kaifi": ""}, {"id": 21, "naam": "श्री अनु श्रेष्ठ", "pad": "वैज्ञानिक अधिकृत", "desh": "India", "awadhi": "११ देखि १५अगष्ट सम्म, 202५", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "The Learning Exposure Visit on Insurance Mechanism for Human Wildlife Conflict", "miti": "1४/4/2082", "kaifi": ""}, {"id": 22, "naam": "श्री सूर्य खड्का", "pad": "संरक्षण अधिकृत", "desh": "India", "awadhi": "११ देखि १५अगष्ट सम्म, 202५", "nikaya": "बर्दिया राष्ट्रिय निकुञ्ज कार्यालय, बर्दिया ।", "prog": "The Learning Exposure Visit on Insurance Mechanism for Human Wildlife Conflict", "miti": "1४/4/2082", "kaifi": ""}, {"id": 23, "naam": "श्री देव प्रसाद भण्डारी", "pad": "नायव सुव्वा", "desh": "India", "awadhi": "११ देखि १५अगष्ट सम्म, 202५", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "The Learning Exposure Visit on Insurance Mechanism for Human Wildlife Conflict", "miti": "1४/4/2082", "kaifi": ""}, {"id": 24, "naam": "श्री रामचन्द्र खतिवडा", "pad": "वरिष्ठ संरक्षण अधिकृत", "desh": "Vietnam", "awadhi": "२३ देखि २५ सेप्टेम्वर सम्म, 202५", "nikaya": "पर्सा राष्ट्रिय निकुञ्ज कार्यालय, आधाभार,बारा ।", "prog": "11th EAPAC Regional Dialogue on Biodiversity Finance", "miti": "1४/4/2082", "kaifi": ""}, {"id": 25, "naam": "श्री सुमना देवकोटा", "pad": "सदस्य-सचिव", "desh": "Bangkok, Thailand", "awadhi": "२५ देखि २९ अगष्ट सम्म, 202५", "nikaya": "वन तथा भू संरक्षण विभाग, ववरमहल ।", "prog": "Professional Traning Course Nature Based Solutions (Nbs) for Disaster Risk Reduction (DRR) in the Hindu Kush Himalayan Region", "miti": "1४/4/2082", "kaifi": ""}, {"id": 26, "naam": "श्री अमर बहादुर ओली", "pad": "समाजशास्त्री", "desh": "Bangkok, Thailand", "awadhi": "२६ देखि २८ अगष्ट सम्म, 202५", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Inclusuve Climate Finance Dialogue for a Resilient Aisa-Pacific", "miti": "1४/4/2082", "kaifi": ""}, {"id": 27, "naam": "डा. सन्जीव कुमार राई", "pad": "सह सचिव (प्रा.)", "desh": "Samarkanda, Uzbekistan", "awadhi": "online", "nikaya": "वनस्पति विभाग, थापाथली", "prog": "Twentieth Meeting of the Conference of the Parties to the convention on International Trade in Endagered Species of Wild Fauna and Flora (CoP 20)", "miti": "19/4/2082", "kaifi": ""}, {"id": 28, "naam": "श्री सन्तोष कार्की", "pad": "शाखा अधिकृत", "desh": "Bangkok, Thailand", "awadhi": "8 देखि 11 सेप्टेम्वर सम्म, 202५", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Seoul Initiative Network on Green Growth (SINGG) and Asia-Pacific NDC Clinic", "miti": "21/4/2082", "kaifi": ""}, {"id": 29, "naam": "डा. महेश्वर ढकाल", "pad": "सह सचिव (प्रा.)", "desh": "Paris, France", "awadhi": "16 देखि 17 सेप्टेम्वर सम्म, 202५", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "OECD-IEA Climate Change Expert Group (CCXG) Global forum on the Environment and Climate Change", "miti": "2२/4/2082", "kaifi": ""}, {"id": 30, "naam": "श्री सुभाष खत्री", "pad": "वरिष्ठ वैज्ञानिक अधिकृत", "desh": "Bangkok, Thailand", "awadhi": "2 देखि 5 सेप्टेम्वर सम्म, 202५", "nikaya": "वातावरण विभाग, ववरमहल ।", "prog": "Articles of Association Review Workshop and Onsite Strategic Planning Workshop", "miti": "2३/4/2082", "kaifi": ""}, {"id": 31, "naam": "श्री सुवर्ण केशरी धौबन्जार", "pad": "इञ्जिनियर", "desh": "Bangkok, Thailand", "awadhi": "2 देखि 5 सेप्टेम्वर सम्म, 202५", "nikaya": "वातावरण विभाग, ववरमहल ।", "prog": "Articles of Association Review Workshop and Onsite Strategic Planning Workshop", "miti": "2३/4/2082", "kaifi": ""}, {"id": 32, "naam": "श्री विष्णु पाण्डे", "pad": "वातावरण निरीक्षक", "desh": "Bangkok, Thailand", "awadhi": "2 देखि 5 सेप्टेम्वर सम्म, 202५", "nikaya": "वातावरण विभाग, ववरमहल ।", "prog": "Articles of Association Review Workshop and Onsite Strategic Planning Workshop", "miti": "2३/4/2082", "kaifi": ""}, {"id": 33, "naam": "डा. रामचन्द्र कँडेल", "pad": "महानिर्देशक", "desh": "Samarkanda, Uzbekistan", "awadhi": "online", "nikaya": "राष्ट्रिय निकुञ्ज तथा वन्यजन्तु संरक्षण विभाग ।", "prog": "Twentieth Meeting of the Conference of the Parties to the convention on International Trade in Endagered Species of Wild Fauna and Flora (CoP 20)", "miti": "2२/4/2082", "kaifi": ""}, {"id": 34, "naam": "डा. अशोककुमार राम", "pad": "वरिष्ठ संरक्षण अधिकृत रा.प द्धितिय प्रा .", "desh": "Bhubaneswar,Odisha,India", "awadhi": "21 देखि 22 अगष्ट सम्म, 202५", "nikaya": "बर्दिया राष्ट्रिय निकुञ्ज कार्यालय, बर्दिया ।", "prog": "International Workshop on best Practices in Human Elephant Co-existence", "miti": "21/4/2082", "kaifi": ""}, {"id": 35, "naam": "श्री वीर बहादुर रावल", "pad": "सि.डि.ई अधिकृत (रा.प द्धितिय प्रा.)", "desh": "Bonn,Germany", "awadhi": "20 देखि 21 अक्टुवर सम्म, 202५", "nikaya": "स्वच्छ संयन्त्र शाखा", "prog": "Workshop Under the UAE Belem Work Programme", "miti": "21/4/2082", "kaifi": ""}, {"id": 36, "naam": "श्री माधव लम्साल", "pad": "जियोलिष्ट (रा.प तृ प्रा.)", "desh": "India", "awadhi": "19 देखि 22 अगष्ट सम्म, 202५", "nikaya": "वातावरण विभाग, ववरमहल ।", "prog": "experise for Environmental Leaders", "miti": "2७/4/2082", "kaifi": ""}, {"id": 37, "naam": "श्री आरती श्रेष्ठ", "pad": "वातावरण निरीक्षक(रा.प तृ प्रा.)", "desh": "India", "awadhi": "19 देखि 22 अगष्ट सम्म, 202५", "nikaya": "वातावरण विभाग, ववरमहल ।", "prog": "experise for Environmental Leaders", "miti": "2७/4/2082", "kaifi": ""}, {"id": 38, "naam": "श्री सदीक्षा वस्ती", "pad": "वातावरण निरीक्षक(रा.प तृ प्रा.)", "desh": "India", "awadhi": "19 देखि 22 अगष्ट सम्म, 202५", "nikaya": "वातावरण विभाग, ववरमहल ।", "prog": "experise for Environmental Leaders", "miti": "2७/4/2082", "kaifi": ""}, {"id": 39, "naam": "प्रतिका पुष्पम", "pad": "वातावरण निरीक्षक(रा.प तृ प्रा.)", "desh": "India", "awadhi": "19 देखि 22 अगष्ट सम्म, 202५", "nikaya": "वातावरण विभाग, ववरमहल ।", "prog": "experise for Environmental Leaders", "miti": "2७/4/2082", "kaifi": ""}, {"id": 40, "naam": "श्री रमेश बहादुर बस्नेत", "pad": "उपसचिव (प्रा.)", "desh": "Vietnam,Austria", "awadhi": "2 देखि 5 सेप्टम्वर सम्म, 202५", "nikaya": "वातावरण प्रभाव अध्ययन शाखा, वन तथा वातावरण मन्त्रालय", "prog": "International Conference on Sustainability in Hydropower", "miti": "2७/4/2082", "kaifi": ""}, {"id": 41, "naam": "श्री डिल बहादुर पूर्जा पुन", "pad": "वरिष्ठ संरक्षण अधिकृत रा.प द्धितिय प्रा .", "desh": "Vietnam,Austria", "awadhi": "2 देखि 5 सेप्टम्वर सम्म, 202५", "nikaya": "शिवपुरी नागार्जुन राष्ट्रिय निकुन्ज कार्यालय,पानीमुहान,काठमाडौ", "prog": "International Conference on Sustainability in Hydropower", "miti": "2७/4/2082", "kaifi": ""}, {"id": 42, "naam": "श्री अजीत कुमार कर्ण", "pad": "उपमहानिर्देशक", "desh": "Chongqing,China", "awadhi": "26 देखि 30 अगष्ट सम्म, 202५", "nikaya": "वन तथा भू संरक्षण विभाग, ववरमहल ।", "prog": "International Workshop Sustainable Utilization and management of CITES Listed Medicinal and Aromatic Plants (MAPs)", "miti": "29/4/2082", "kaifi": ""}, {"id": 43, "naam": "श्री नरेश शर्मा", "pad": "उपसचिव (प्रा.)", "desh": "Bonn,Germany", "awadhi": "6 देखि 10 अक्टोवर सम्म, 202५", "nikaya": "जलवायु प्रविधी शाखा", "prog": "Fortyfifth Meeting of the Adaptation Fund Board and the Tirth-six Meeting of the Board Committees", "miti": "2082-05-05", "kaifi": ""}, {"id": 44, "naam": "श्री प्रेम प्रसाद देवकोटा", "pad": "उपसचिव (प्रा.)", "desh": "Singapore", "awadhi": "22 देखि 24 सेप्टेम्वरसम्म, 202५", "nikaya": "राष्ट्रिय निकुञ्ज तथा वन्यजन्तु संरक्षण विभाग ।", "prog": "South Asia Operations Forum 2025", "miti": "2082-05-05", "kaifi": ""}, {"id": 45, "naam": "डा. महेश्वर ढकाल", "pad": "सह सचिव (प्रा.)", "desh": "Delem, Brazil", "awadhi": "4 देखि 21 नोभेम्वर सम्म, 202५", "nikaya": "जलवायु परिवर्तन व्यवस्थपान महाशाखा, वन तथा वातावरण मन्त्रालय", "prog": "Nation Climate Change Conference", "miti": "2082-05-05", "kaifi": ""}, {"id": 46, "naam": "श्री मनोज न्यौपाने", "pad": "वरिष्ठ वन अधिकृत", "desh": "Nadi,Fiji", "awadhi": "26 देखि 29 अगष्ट सम्म, 202५", "nikaya": "माननीय राज्यमन्त्रीको सचिवालय", "prog": "6th Forum of Ministers and Environment Authorities of Asia Pacifiv (6th Ap Forum)", "miti": "2082-08-05", "kaifi": ""}, {"id": 47, "naam": "श्री तिर्थ राज राई", "pad": "उपसचिव (प्रा.)", "desh": "china", "awadhi": "अगष्ट ३० देखि ६ सेप्टम्वर सम्म, 202५", "nikaya": "वातावरण विभाग, ववरमहल ।", "prog": "High-Level Delegation for Exposure Vistit", "miti": "2082-09-05", "kaifi": ""}, {"id": 48, "naam": "श्री गंगादत्त भट्ट", "pad": "वरिष्ठ वैज्ञानिक अधिकृत", "desh": "china", "awadhi": "अगष्ट ३० देखि ६ सेप्टम्वर सम्म, 202५", "nikaya": "वनस्पति विभाग, थापाथली", "prog": "High-Level Delegation for Exposure Vistit", "miti": "2082-09-05", "kaifi": ""}, {"id": 49, "naam": "श्री रविन शाक्य", "pad": "वातावरण निरीक्षक", "desh": "Nairobi,Kenya", "awadhi": "नोभेम्बर २ देखि ७  सम्म, 202५", "nikaya": "वातावरण विभाग, ववरमहल ।", "prog": "Thirty Seventh Meeting of the Parties to the montreal protocol on Substance that Deplete the Ozone Layer and Informal Meeting on Facilitating the Implementation of the Montreal Protocol", "miti": "2082-10-05", "kaifi": ""}, {"id": 50, "naam": "श्री ज्ञानराज सुवेदी", "pad": "महानिर्देशक", "desh": "china", "awadhi": "30 देखि 6 सेप्टेम्बर सम्म, 202५", "nikaya": "वातावरण विभाग, ववरमहल ।", "prog": "High-Level Delegation for Exposure Vistit", "miti": "2082-10-05", "kaifi": ""}, {"id": 51, "naam": "श्री भद्रिका भट्टराई", "pad": "केमिष्ट", "desh": "China", "awadhi": "23 देखि 26 सेप्टेम्बर सम्म, 202५", "nikaya": "वातावरण मापदण्ड तथा अनुगमन शाखा", "prog": "Asia and the Pacific Regional Preparatory Meeting for the Sixth Meeting of the Conference of the Parties to the Minamata Convention on Mercury and Promoting Minamata Convention on Mercury by making the Most of Japan's Knowledge and Experiences", "miti": "2082-10-05", "kaifi": ""}, {"id": 52, "naam": "श्री मिलन ढुङ्गाना", "pad": "वरिष्ठ अनुसन्धान  अधिकृत (रा.प द्धितिय प्रा .)", "desh": "seoul, Republic of Korea", "awadhi": "2 देखि 4 सेप्टेम्बर सम्म, 202५", "nikaya": "वन अनुसन्धान तथा प्रशिक्षण केन्द्र बबरमहल", "prog": "The Twenty -Ninth Session of the Intergovernmental Consultative Committee (ICC) on the Regional Space Applications Programme for Sustainable Development (RESAP)", "miti": "2082-02-05", "kaifi": ""}, {"id": 53, "naam": "श्री मनोज कुमार साह", "pad": "वरिष्ठ संरक्षण अधिकृत रा.प द्धितिय प्रा .", "desh": "Dong Nai,Niet Nam", "awadhi": "17 देखि 21 सेप्टेम्बर सम्म, 202५", "nikaya": "राष्ट्रिय निकुञ्ज तथा वन्यजन्तु संरक्षण विभाग ।", "prog": "12th Meeting of the IUCN SSC AsESG", "miti": "2082-02-05", "kaifi": ""}, {"id": 54, "naam": "दीपा ओली", "pad": "उपसचिव (प्रा.)", "desh": "changsha,Hunan Province of China", "awadhi": "17 देखि 21 सेप्टेम्बर सम्म, 202५", "nikaya": "विकास सहायता समन्वय शाखा", "prog": "South-South Cooperation Seminar on Gender and Transparence in climate Change", "miti": "2082-02-05", "kaifi": ""}, {"id": 55, "naam": "श्री सुनिता उलक", "pad": "उपसचिव (प्रा.)", "desh": "Bangkok, Thailand", "awadhi": "17 देखि 21 सेप्टेम्बर सम्म, 202५", "nikaya": "वन अनुसन्धान तथा प्रशिक्षण केन्द्र बबरमहल", "prog": "Regional Meeting Related to the Implementation of the Kunming-Mountreal Global Biodiversity Framework for Asia and the Pacific", "miti": "20/5/2082", "kaifi": ""}, {"id": 56, "naam": "श्री हेमराज शाही", "pad": "वरिष्ठ वन अधिकृत अधिकृतस्तर आठौ", "desh": "Shenyang Normal University,China", "awadhi": "14 देखि 26 अक्टोवर सम्म, 202५", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Seminar on Biodiversity Conservation Under Carbon Neutrality for \"Belt and Road\"Countries", "miti": "20/5/2082", "kaifi": ""}, {"id": 57, "naam": "श्री हिरालाल आचार्य", "pad": "शाखा अधिकृत रा.प.तृ", "desh": "Shenyang Normal University,China", "awadhi": "14 देखि 26 अक्टोवर सम्म, 202५", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Seminar on Biodiversity Conservation Under Carbon Neutrality for \"Belt and Road\"Countries", "miti": "20/5/2082", "kaifi": ""}, {"id": 58, "naam": "श्री खिमराज वली", "pad": "भूसंरक्षण   अधिकृत (रा.प.तृ)", "desh": "National Academy of Forestry Grassland Administration China", "awadhi": "13 देखि 26 अक्टोवर सम्म, 202५", "nikaya": "बृहत जलाधार व्यवस्थापन केन्द्र महाकाली,बैतडी", "prog": "Seminar on Natural Forest Protection for Developing Countries", "miti": "20/5/2082", "kaifi": ""}, {"id": 59, "naam": "श्री महेश्वर प्रसाद निरौला", "pad": "संरक्षण  अधिकृत", "desh": "Mall Hotel", "awadhi": "6 देखि 7 सेप्टेम्बर सम्म, 202५", "nikaya": "वनक्षेत्र भू उपयोग शाखा,वन तथा वातावरण मन्त्रालय", "prog": "Regional Dialouge on\"Transformative Action to End Open Burning of Water in South Asia\"", "miti": "20/5/2082", "kaifi": ""}, {"id": 60, "naam": "श्री असिम थापा", "pad": "संरक्षण अधिकृत (रा.प.तृ)", "desh": "Maldives", "awadhi": "6 देखि 7 सेप्टेम्बर सम्म, 202५", "nikaya": "अन्नपुर्ण संरक्षण क्षेत्र कार्यालय,कास्की", "prog": "Global Shark Conservation Meeting", "miti": "2082-05-06", "kaifi": ""}, {"id": 61, "naam": "श्री पुष्प दिप श्रेष्ठ", "pad": "रेन्जर रा.प.अंन.प्रथम (प्रा.)", "desh": "Dehardun,India", "awadhi": "4 देखि 21 नोभेम्वर सम्म, 202५", "nikaya": "राष्ट्रिय निकुञ्ज तथा वन्यजन्तु संरक्षण विभाग ।", "prog": "40th Certificate Course inf Wildlife Managemaent", "miti": "2082-05-06", "kaifi": ""}, {"id": 62, "naam": "श्री हसना श्रेष्ठ", "pad": "अ", "desh": "Manila, Philippines", "awadhi": "9 देखि 10 अक्टोवर सम्म, 202५", "nikaya": "वातावरण विभाग, ववरमहल ।", "prog": "Scaling up clean Air Actions for Better Health and Resilience-Air Quality Toolkit Training", "miti": "2082-07-06", "kaifi": ""}, {"id": 63, "naam": "श्री सुदिप छत्कुली", "pad": "उपसचिव (प्रा.)", "desh": "Japan", "awadhi": "8फेव्रअरी देखि मार्च 7 अक्टोवर सम्म, 202६", "nikaya": "कार्यक्रम तथा योजना शाखा वन तथा वातावरण मन्त्रालय", "prog": "JICA KCCP on 'Capacity Development towards Air Quality Management\"", "miti": "2082-07-17", "kaifi": ""}, {"id": 64, "naam": "श्री सदिक्षा वस्ती", "pad": "वातावरण निरीक्षक(रा.प तृ प्रा.)", "desh": "Japan", "awadhi": "8फेव्रअरी देखि मार्च 7 अक्टोवर सम्म, 202६", "nikaya": "वातावरण विभाग, ववरमहल ।", "prog": "JICA KCCP on 'Capacity Development towards Air Quality Management\"", "miti": "2082-07-17", "kaifi": ""}, {"id": 65, "naam": "श्रीसृजना श्रेष्ठ", "pad": "उपसचिव (प्रा.)", "desh": "Thimphu,Bhutan", "awadhi": "9 देखि 15 नोभेम्वर सम्म, 202५", "nikaya": "माननीय राज्यमन्त्रीको सचिवालय", "prog": "7th Forum of Ministers and Environment Authorities of Asia Pacifiv (6th Ap Forum)", "miti": "2082-07-21", "kaifi": ""}, {"id": 66, "naam": "श्री विष्णु प्रसाद पाण्डे", "pad": "वरिष्ठ अनुसन्धान  अधिकृत (प्रा.)", "desh": "West Bengal,India", "awadhi": "९  नोभेम्वर सम्म, 202५", "nikaya": "राष्ट्रिय निकुञ्ज तथा वन्यजन्तु संरक्षण विभाग ।", "prog": "Experience Sharing Meeting Between India and Nepal", "miti": "2082-07-21", "kaifi": ""}, {"id": 67, "naam": "श्री भुपेन्द्र प्रसाद यादव", "pad": "वरिष्ठ संरक्षण अधिकृत (प्रा.)", "desh": "West Bengal,India", "awadhi": "९  नोभेम्वर सम्म, 202५", "nikaya": "कोशी टप्पु वन्यजन्तु आरक्ष कार्यालय,सुनसरी", "prog": "Experience Sharing Meeting Between India and Nepal", "miti": "2082-07-21", "kaifi": ""}, {"id": 68, "naam": "श्री प्रमोद कुमार यादव", "pad": "संरक्षण अधिकृत", "desh": "West Bengal,India", "awadhi": "९  नोभेम्वर सम्म, 202५", "nikaya": "कन्चनजंगा संरक्षण क्षेत्र कार्यालय,ताप्लेजुङ्ग", "prog": "Experience Sharing Meeting Between India and Nepal", "miti": "2082-07-21", "kaifi": ""}, {"id": 69, "naam": "श्री अमृत शर्मा", "pad": "संरक्षण अधिकृत", "desh": "Thimphu,Bhutan", "awadhi": "९  नोभेम्वर सम्म, 202५", "nikaya": "विकास सहायता समन्वय शाखा", "prog": "Experience Sharing Meeting Between India and Nepal", "miti": "2082-07-21", "kaifi": ""}, {"id": 70, "naam": "श्री दीपा वली", "pad": "उपसचिव (प्रा.)", "desh": "Arusha,United Republice of Tanzania", "awadhi": "2 देखि ५  नोभेम्वर सम्म, 202५", "nikaya": "विकास सहायता समन्वय शाखा", "prog": "Delivering Climate-Resilient Landscapes:Smallholders,Indigenous Peoples and Local Comunites as Catalysts for Climate-Smart Food Systems and Forest Landscape Restoration", "miti": "2082-07-21", "kaifi": ""}, {"id": 71, "naam": "श्री शोभाखर रेग्मी", "pad": "उपसचिव", "desh": "Nairobi,Kenya", "awadhi": "1  देखि 12 डिसेम्बर   २०२5 सम्म,", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Seventh Meeting of the open-ended Committee of Permanent Representatives and Seventh Session of the Nations Environment Assembly (UNEA-7) and its Preparatory Meeting,UNEP HQ", "miti": "2082-07-21", "kaifi": ""}, {"id": 72, "naam": "श्री सुनिल चौधरी", "pad": "केमिष्ट (रा.प.तृ प्रा.)", "desh": "Bangkok, Thailand", "awadhi": "1 देखि 12 डिसेम्बर सम्म, 202५", "nikaya": "वन अनुसन्धान तथा प्रशिक्षण केन्द्र बबरमहल", "prog": "South Asia Rigional One Health AMR Workshop", "miti": "25/7/2082", "kaifi": ""}, {"id": 73, "naam": "श्री दीपक अधिकारी", "pad": "उपसचिव (प्रा.)", "desh": "Thimphu,Bhutan", "awadhi": "११ देखि १२ डिसेम्बर सम्म, 202५", "nikaya": "आर्थिक प्रशासन शाखा,", "prog": "Fourth Meeting of BIMSTEC Joint Working Group on Environment and Climate Change (JWG-ECC)", "miti": "2082-07-27", "kaifi": ""}, {"id": 74, "naam": "श्री अमृत शर्मा", "pad": "संक्षरण अधिकृत (रा.प.तृ) (प्रा.)", "desh": "Thimphu,Bhutan", "awadhi": "११ देखि १२ डिसेम्बर सम्म, 202५", "nikaya": "विकास सहायता समनुवय शाखा", "prog": "Fourth Meeting of BIMSTEC Joint Working Group on Environment and Climate Change (JWG-ECC)", "miti": "2082-07-27", "kaifi": ""}, {"id": 75, "naam": "श्री विशाल घिमिरे", "pad": "सहसचिव प्रा.", "desh": "Panama", "awadhi": "1 देखि 5डिसेम्बर सम्म, 202५", "nikaya": "वन तथा जलाधार महाशाखा", "prog": "Twenty-Third Session of the Committee for the review of the Implementation of the Convention (CRIC23)", "miti": "2082-07-28", "kaifi": ""}, {"id": 76, "naam": "श्री दिनेश ढकाल", "pad": "पशु स्वास्थ्य प्राविधिक", "desh": "Quatar", "awadhi": "202५10डिसेम्बर देखि 10 जनवरी  २०२६ सम्म,", "nikaya": "चितवन राष्ट्रिय निकुन्ज कार्यालय ,चितवन", "prog": "Fligh, Accommodation and Transporation Cost", "miti": "2082-07-30", "kaifi": ""}, {"id": 77, "naam": "पाचु खाँ थारु", "pad": "पशु स्वास्थ्य प्राविधिक", "desh": "Quatar", "awadhi": "10डिसेम्बर देखि 202५,10 जनवरी  २०२६ सम्म,", "nikaya": "चितवन राष्ट्रिय निकुन्ज कार्यालय ,चितवन", "prog": "Fligh, Accommodation and Transporation Cost", "miti": "2082-07-30", "kaifi": ""}, {"id": 78, "naam": "श्री बुद्धिलाल श्रेष्ठ", "pad": "माहुत", "desh": "Quatar", "awadhi": "10डिसेम्बर देखि 202५,10 जनवरी  २०२६ सम्म,", "nikaya": "चितवन राष्ट्रिय निकुन्ज कार्यालय ,चितवन", "prog": "Fligh, Accommodation and Transporation Cost", "miti": "2082-07-30", "kaifi": ""}, {"id": 79, "naam": "श्री लक्ष्मी कुमारी पौडेल न्यौपाने", "pad": "उपसचिव (प्रा.)", "desh": "Bangkok, Thailand", "awadhi": "24 देखि 31 अक्टोवर सम्म, 202५", "nikaya": "सामुदायिक वन तथा कवुलियती बन शाखा", "prog": "Exposure Visit and Regional Workshop on Advaneing Regenerative and Climate Friendly Tourism for Sustainable Transformation in the Hindu Kush Himalaya", "miti": "2082-08-12", "kaifi": ""}, {"id": 80, "naam": "डा.अशोक कुमार राम", "pad": "वरिष्ठ संरक्षण अधिकृत (प्रा.)", "desh": "Paro,Bhutan", "awadhi": "13 देखि 14 नोभेम्वर सम्म, 202५", "nikaya": "बर्दिया राष्ट्रिय निकुञ्ज कार्यालय, ठाकुरद्धारा बर्दिया ।", "prog": "Transboundary Workshop Towards Wild Cat Conservation in the ongoing Gef-Project", "miti": "29/6/2082", "kaifi": ""}, {"id": 81, "naam": "श्री नविना महर्जन", "pad": "वातावरण निरीक्षक(रा.प तृ प्रा.)", "desh": "Bangkok, Thailand", "awadhi": "25 देखि 28 नोभेम्वर सम्म, 202५", "nikaya": "वातावरण विभाग, ववरमहल ।", "prog": "2nd Quadripartite One Health Workshop for Asia", "miti": "29/6/2082", "kaifi": ""}, {"id": 82, "naam": "अस्मित ‌ओली", "pad": "केमिष्ट(रा.प तृ प्रा.)", "desh": "Bangkok, Thailand", "awadhi": "९ देखि ११ नोभेम्वर सम्म, 202५", "nikaya": "वातावरण विभाग, ववरमहल ।", "prog": "South Asia Regonal One Health AMR Workshop", "miti": "29/6/2082", "kaifi": ""}, {"id": 83, "naam": "श्री केशवराज जोशी", "pad": "वातावरण निरीक्षक(रा.प तृ प्रा.)", "desh": "Delhi India", "awadhi": "3  नोभेम्वर सम्म, 202५", "nikaya": "वातावरण मापदण्ड तथा अनुगमन शाखा", "prog": "Consultation workshop on Developing Screening for High Emission Reduction Potentials on Air Quality (SHERPA) Tool for Air Quality managemant in the IGP-HF Region", "miti": "29/6/2082", "kaifi": ""}, {"id": 84, "naam": "श्री केदार नाथ कटेल", "pad": "संरक्षण अधिकृत (रा.प.तृ)", "desh": "New Delhi, India", "awadhi": "25 देखि 27 नोभेम्वर सम्म, 202५", "nikaya": "राष्ट्रिय प्राणी उद्यान,भक्तपुर", "prog": "Regional Training of Trainers", "miti": "29/6/2082", "kaifi": ""}, {"id": 85, "naam": "श्री शिवलाल गैरे", "pad": "संरक्षण अधिकृत (रा.प.तृ)", "desh": "New Delhi, India", "awadhi": "25 देखि 27 नोभेम्वर सम्म, 202५", "nikaya": "शिवपुरी नागार्जुन राष्ट्रिय निकुन्ज कार्यालय,पानीमुहान,काठमाडौ", "prog": "Regional Training of Trainers", "miti": "29/6/2082", "kaifi": ""}, {"id": 86, "naam": "अविनाश थापा मगर", "pad": "संरक्षण अधिकृत (रा.प.तृ)", "desh": "New Delhi, India", "awadhi": "25 देखि 27 नोभेम्वर सम्म, 202५", "nikaya": "चितवन राष्ट्रिय निकुन्ज कार्यालय ,चितवन", "prog": "Regional Training of Trainers", "miti": "29/6/2082", "kaifi": ""}, {"id": 87, "naam": "श्री रिती आचार्य", "pad": "संरक्षण अधिकृत (रा.प.तृ)", "desh": "New Delhi, India", "awadhi": "25 देखि 27 नोभेम्वर सम्म, 202५", "nikaya": "वन अनुसन्धान तथा प्रशिक्षण केन्द्र बबरमहल", "prog": "Regional Training of Trainers", "miti": "29/6/2082", "kaifi": ""}, {"id": 88, "naam": "श्री विमल कुमार आचार्य", "pad": "वरिष्ठ दुर संवेदन अधिकृत रा.प.द्धि (प्रा.)", "desh": "India", "awadhi": "८ देखि 12 डिसेम्बर सम्म, 202५", "nikaya": "वन अनुसन्धान तथा प्रशिक्षण केन्द्र बबरमहल", "prog": "Regional Training and Exposure on Natural Capital Accounting", "miti": "2082-03-08", "kaifi": ""}, {"id": 89, "naam": "श्री अप्सरा पौडेल", "pad": "नापी अधिकृत (रा.प.तृ) (प्रा.)", "desh": "India", "awadhi": "८ देखि 12 डिसेम्बर सम्म, 202५", "nikaya": "वन अनुसन्धान तथा प्रशिक्षण केन्द्र बबरमहल", "prog": "Regional Training and Exposure on Natural Capital Accounting", "miti": "2082-03-08", "kaifi": ""}, {"id": 90, "naam": "डा. शिव खनाल", "pad": "उपसचिव (प्रा.)", "desh": "Lima,Peru", "awadhi": "24 देखि 31 अक्टोवर सम्म, 202५", "nikaya": "उत्सर्जन मापन शाखा", "prog": "Sixty-third session of the Intergovernmental Panel on Climate Change (IPCC)", "miti": "2082-07-06", "kaifi": ""}, {"id": 91, "naam": "श्री लक्ष्मी कुमारी पौडेल न्यौपाने", "pad": "उपसचिव (प्रा.)", "desh": "Republice of Korea", "awadhi": "28 देखि 30 अक्टोवर सम्म, 202५", "nikaya": "सामुदायिक तथा कवुलियती वन शाखा", "prog": "2025 International Converence on Green Project Development for Climate Change Response and Adaptation,Songdo Convensia Center in Incheon", "miti": "2082-07-06", "kaifi": ""}, {"id": 92, "naam": "श्री नरेश शर्मा", "pad": "उपसचिव (प्रा.)", "desh": "panjab,India", "awadhi": "3 देखि 8 नोभेम्वर सम्म, 202५", "nikaya": "जलवायु प्रविधी शाखा", "prog": "Evidence Based Field Visit for Assessment and Scale-up of Biomass Energy Solution", "miti": "2082-07-13", "kaifi": ""}, {"id": 93, "naam": "डा.राम सिंह थापा", "pad": "उपसचिव (प्रा.)", "desh": "panjab,India", "awadhi": "3 देखि 8 नोभेम्वर सम्म, 202५", "nikaya": "अनुगमन तथा मूल्याकंन शाखा", "prog": "Evidence Based Field Visit for Assessment and Scale-up of Biomass Energy Solution", "miti": "2082-07-13", "kaifi": ""}, {"id": 94, "naam": "श्री राजेश गौतम", "pad": "शाखा अधिकृत", "desh": "panjab,India", "awadhi": "3 देखि 8 नोभेम्वर सम्म, 202५", "nikaya": "वातावरण विभाग, ववरमहल ।", "prog": "Evidence Based Field Visit for Assessment and Scale-up of Biomass Energy Solution", "miti": "2082-07-13", "kaifi": ""}, {"id": 95, "naam": "डा.प्रकास सिंह थापा", "pad": "उपसचिव (प्रा.)", "desh": "Paro,Bhutan", "awadhi": "3 देखि 4 डिसेम्बर सम्म, 202५", "nikaya": "जलवायु परिवर्तन शाखा, वन तथा वातावरण मन्त्रालय", "prog": "The Regional Consultation on Enhanching Climate Actions in the Hindu Kush Himalaya Readiness and Access to Climate", "miti": "2082-07-13", "kaifi": ""}, {"id": 96, "naam": "श्री कुशल श्रेष्ठ", "pad": "वन अधिकृत", "desh": "Paro,Bhutan", "awadhi": "3 देखि 4 डिसेम्बर सम्म, 202५", "nikaya": "अनुगमन तथा मूल्याकंन शाखा", "prog": "The Regional Consultation on Enhanching Climate Actions in the Hindu Kush Himalaya Readiness and Access to Climate", "miti": "2082-07-13", "kaifi": ""}, {"id": 97, "naam": "श्री प्रतिक पाण्डे", "pad": "अनुसन्धान अधिकृत", "desh": "Paro,Bhutan", "awadhi": "3 देखि 4 डिसेम्बर सम्म, 202५", "nikaya": "वन अनुसन्धान तथा प्रशिक्षण केन्द्र बबरमहल", "prog": "The Regional Consultation on Enhanching Climate Actions in the Hindu Kush Himalaya Readiness and Access to Climate", "miti": "2082-07-13", "kaifi": ""}, {"id": 98, "naam": "श्री सुमन सुवेदी", "pad": "उपसचिव (प्रा.)", "desh": "Paro,Bhutan", "awadhi": "१ देखि २ डिसेम्बर सम्म, 202५", "nikaya": "अनुकुलन शाखा,वन तथा वातावरण मन्त्रालय", "prog": "Regional Stakeholder  Consultation Workshop on The Enhanced Transparency Framework in the Hindu Kush Himalaya Region", "miti": "2082-07-13", "kaifi": ""}, {"id": 99, "naam": "श्री बाबुराम घिमिरे", "pad": "उपसचिव (प्रा.)", "desh": "Paro,Bhutan", "awadhi": "१ देखि २ डिसेम्बर सम्म, 202५", "nikaya": "आन्तरिक व्यवस्थापन शाखा,वन तथा वातावरण मन्त्रालय", "prog": "Regional Stakeholder  Consultation Workshop on The Enhanced Transparency Framework in the Hindu Kush Himalaya Region", "miti": "2082-07-13", "kaifi": ""}, {"id": 100, "naam": "श्री विनोद गेलाल", "pad": "उपसचिव (लेखा.)", "desh": "Paro,Bhutan", "awadhi": "१ देखि २ डिसेम्बर सम्म, 202५", "nikaya": "वन तथा भू संरक्षण विभाग", "prog": "Regional Stakeholder  Consultation Workshop on The Enhanced Transparency Framework in the Hindu Kush Himalaya Region", "miti": "2082-07-13", "kaifi": ""}, {"id": 101, "naam": "श्री रघुराम पराजुली", "pad": "संरक्षण अधिकृत", "desh": "Paro,Bhutan", "awadhi": "१ देखि २ डिसेम्बर सम्म, 202५", "nikaya": "वनस्पति विभाग, थापाथली", "prog": "Regional Stakeholder  Consultation Workshop on The Enhanced Transparency Framework in the Hindu Kush Himalaya Region", "miti": "2082-07-13", "kaifi": ""}, {"id": 102, "naam": "श्री स्मृती पहारी", "pad": "संरक्षण अधिकृत", "desh": "Paro,Bhutan", "awadhi": "१ देखि २ डिसेम्बर सम्म, 202५", "nikaya": "विकास सहायता समन्वय शाखा,वन तथा वातावरण  मन्त्रालय", "prog": "Regional Stakeholder  Consultation Workshop on The Enhanced Transparency Framework in the Hindu Kush Himalaya Region", "miti": "2082-07-13", "kaifi": ""}, {"id": 103, "naam": "श्री अमृत भट्ट", "pad": "संरक्षण अधिकृत (रा.प.तृ) (प्रा.)", "desh": "Texas,America (USA)", "awadhi": "5 देखि 8 डिसेम्बर सम्म, 202५", "nikaya": "अख्तियार दुरुपयोग अनुसन्धान आयोग,टंगाल,काठमाडौ", "prog": "21st International Elephant Conservation and Research symposium", "miti": "6/31/2082", "kaifi": ""}, {"id": 104, "naam": "श्री नवराज पुडासैनी", "pad": "केन्द्र प्रमुख (रा.प.प्रथम) (प्रा.)", "desh": "Belem,Brazil", "awadhi": "28  अक्टोवर सम्म, 202५", "nikaya": "रेड कार्यान्वयन केन्द्र, ववरमहल ।", "prog": "REDD+Investments in Asia:Implementation Roundtable", "miti": "2082-06-30", "kaifi": ""}, {"id": 105, "naam": "श्री नवराज पुडासैनी", "pad": "केन्द्र प्रमुख (रा.प.प्रथम) (प्रा.)", "desh": "seoul, Republic of Korea", "awadhi": "10 देखि 15 नोभेम्वर सम्म, 202५", "nikaya": "रेड कार्यान्वयन केन्द्र, ववरमहल ।", "prog": "United Nations Climate Change Conference 2025,Cop30", "miti": "2082-06-30", "kaifi": ""}, {"id": 106, "naam": "श्री मिमांस अधिकारी", "pad": "सह सचिव (प्रशासन.)", "desh": "Belem,Brazil", "awadhi": "३ देखि 15 नोभेम्वर सम्म, 202५", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "United Nations Climate Change Conference 2025,Cop30", "miti": "2082-06-30", "kaifi": ""}, {"id": 107, "naam": "श्री दिपक ज्ञवाली", "pad": "सि.डि.के.(रा.प.द्धि प्रा.)", "desh": "Lucknow,Uttar Pradesh,India", "awadhi": "16 देखि 17 अक्टोवर सम्म, 202५", "nikaya": "वातावरण विभाग, ववरमहल ।", "prog": "National Clean Air Programme (NCAP)", "miti": "2082-06-30", "kaifi": ""}, {"id": 108, "naam": "श्री लक्ष्मी श्रेष्ठ", "pad": "मेकानिकल इन्जिनियर  (रा.प.तृ) (प्रा.)", "desh": "Lucknow,Uttar Pradesh,India", "awadhi": "16 देखि 17 अक्टोवर सम्म, 202५", "nikaya": "वातावरण विभाग, ववरमहल ।", "prog": "National Clean Air Programme (NCAP)", "miti": "2082-06-30", "kaifi": ""}, {"id": 109, "naam": "श्री भद्रिका भट्टराई", "pad": "केमिष्ट (रा.प.तृ) (प्रा.)", "desh": "Lucknow,Uttar Pradesh,India", "awadhi": "16 देखि 17 अक्टोवर सम्म, 202५", "nikaya": "वातावरण मापदण्ड तथा अनुगमन शाखा,वन तथा वातावरण मन्त्रालय", "prog": "National Clean Air Programme (NCAP)", "miti": "2082-06-30", "kaifi": ""}, {"id": 110, "naam": "श्री ज्ञानराज सुवेदी", "pad": "महानिर्देशक (रा.प.प्र)", "desh": "Japan", "awadhi": "16 देखि 19 सेप्टेम्बर सम्म, 202५", "nikaya": "वातावरण विभाग, ववरमहल ।", "prog": "The Workshop Program for support for development of reduction target for methane emission from organic waste in Nepal (ENNMO1)", "miti": "2082-06-24", "kaifi": ""}, {"id": 111, "naam": "श्री शिवजी शर्मा", "pad": "सि.डि.के.(रा.प.द्धि प्रा.)", "desh": "Japan", "awadhi": "16 देखि 19 सेप्टेम्बर सम्म, 202५", "nikaya": "वातावरण मापदण्ड तथा अनुगमन शाखा,वन तथा वातावरण मन्त्रालय", "prog": "The Workshop Program for support for development of reduction target for methane emission from organic waste in Nepal (ENNMO1)", "miti": "2082-06-24", "kaifi": ""}, {"id": 112, "naam": "श्री नारायण रायमाझी", "pad": "शाखा अधिकृत", "desh": "Japan", "awadhi": "16 देखि 19 सेप्टेम्बर सम्म, 202५", "nikaya": "कर्मचारी प्रशासन शाखा वन तथा वातावरण मन्त्रालय", "prog": "The Workshop Program for support for development of reduction target for methane emission from organic waste in Nepal (ENNMO1)", "miti": "2082-06-24", "kaifi": ""}, {"id": 113, "naam": "श्री शिवकुमार वाग्ले", "pad": "सह सचिव(प्रा.)", "desh": "seoul and Gyeongiu,Republic of Korea", "awadhi": "27 देखि 31 अक्टोवर सम्म, 202५", "nikaya": "योजना अनुगमन तथा समन्वय महाशाखा,", "prog": "14thAssembly and 18th Council Joint Session and GGG week 2025", "miti": "2082-06-26", "kaifi": ""}, {"id": 114, "naam": "श्री तिल कुमार थापा", "pad": "संक्षरण अधिकृत (रा.प.तृ) (प्रा.)", "desh": "Uk", "awadhi": "3 देखि 28 नोभेम्वर सम्म, 202५", "nikaya": "राष्ट्रिय हर्वेरियम तथा वनस्पति प्रयोगशाला,गोदावरी", "prog": "Advance Trainting on the Flora of Nepal Vol.11 (Orchidaceae) Pulication", "miti": "2082-06-21", "kaifi": ""}, {"id": 115, "naam": "डा. शिव खनाल", "pad": "उपसचिव (प्रा.)", "desh": "China", "awadhi": "11 देखि 20 अक्टोवर सम्म, 202५", "nikaya": "उत्सर्जन मापन शाखा", "prog": "The China Shanghai Cooperation Organization Seminar in Green Industry Cooperaion Exchange", "miti": "2082-06-21", "kaifi": ""}, {"id": 116, "naam": "श्री अमर बहादुर घर्ती", "pad": "शाखा अधिकृत", "desh": "China", "awadhi": "11 देखि 20 अक्टोवर सम्म, 202५", "nikaya": "आन्तरिक व्यवस्थापन शाखा,वन तथा वातावरण मन्त्रालय", "prog": "The China Shanghai Cooperation Organization Seminar in Green Industry Cooperaion Exchange", "miti": "2082-06-21", "kaifi": ""}, {"id": 117, "naam": "श्री सिद्धार्थ अर्याल", "pad": "वन अधिकृत (रा.प.तृ) (प्रा.)", "desh": "China", "awadhi": "11 देखि 20 अक्टोवर सम्म, 202५", "nikaya": "वन तथा भू संरक्षण विभाग बबरमहल", "prog": "The China Shanghai Cooperation Organization Seminar in Green Industry Cooperaion Exchange", "miti": "2082-06-21", "kaifi": ""}, {"id": 118, "naam": "श्री रोशन सिंह ठगुन्ना", "pad": "संक्षरण अधिकृत (रा.प.तृ) (प्रा.)", "desh": "China", "awadhi": "11 देखि 20 अक्टोवर सम्म, 202५", "nikaya": "राष्ट्रिय निकुञ्ज तथा वन्यजन्तु संरक्षण विभाग ।", "prog": "The China Shanghai Cooperation Organization Seminar in Green Industry Cooperaion Exchange", "miti": "2082-06-21", "kaifi": ""}, {"id": 119, "naam": "श्री सिर्जना महर्जन", "pad": "वैज्ञानिक अधिकृत (रा.प.तृ) (प्रा.)", "desh": "China", "awadhi": "11 देखि 20 अक्टोवर सम्म, 202५", "nikaya": "वन अनुसन्धान तथा प्रशिक्षण केन्द्र बबरमहल", "prog": "The China Shanghai Cooperation Organization Seminar in Green Industry Cooperaion Exchange", "miti": "2082-06-21", "kaifi": ""}, {"id": 120, "naam": "श्री चेत नारायण खरेल", "pad": "वरिष्ठ पशु चिकित्सक", "desh": "Bangkok, Thailand", "awadhi": "25देखि 27 नोभेम्वर सम्म, 202५", "nikaya": "कृषि तथा पशुपन्छी मन्त्रालय", "prog": "2nd Quadripartite One Health Workshop for Asia", "miti": "2082-06-23", "kaifi": ""}, {"id": 121, "naam": "श्री आभाष श्रेष्ठ", "pad": "पशु चिकित्सक", "desh": "Bangkok, Thailand", "awadhi": "१८ देखि १९ नोभेम्वर सम्म, 202५", "nikaya": "कृषि तथा पशुपन्छी मन्त्रालय", "prog": "Regional Workshop on Interpretation of AMU/AMR Data to Improve Evidence-Based Decision Making in Asia and Prcific", "miti": "2082-06-23", "kaifi": ""}, {"id": 122, "naam": "श्री सिवत देसार", "pad": "वातावरण निरीक्षक(रा.प तृ प्रा.)", "desh": "New Delhi, India", "awadhi": "6 देखि 8 अक्टोवर सम्म, 202५", "nikaya": "वातावरण विभाग, ववरमहल ।", "prog": "Regional Training Workshop on Gas Analyzer Instruments Operation Maintenance and Calibration", "miti": "2082-06-12", "kaifi": ""}, {"id": 123, "naam": "श्री आरती श्रेष्ठ", "pad": "वातावरण निरीक्षक(रा.प तृ प्रा.)", "desh": "New Delhi, India", "awadhi": "6 देखि 8 अक्टोवर सम्म, 202५", "nikaya": "वातावरण विभाग, ववरमहल ।", "prog": "Regional Training Workshop on Gas Analyzer Instruments Operation Maintenance and Calibration", "miti": "2082-06-12", "kaifi": ""}, {"id": 124, "naam": "डा. महेश्वर ढकाल", "pad": "सहसचिव प्रा.", "desh": "Pasay City,Metro Manila, Philippines", "awadhi": "7 देखि 9 अक्टोवर सम्म, 202५", "nikaya": "जलवायु परिवर्तन व्यवस्थपान महाशाखा, वन तथा वातावरण मन्त्रालय", "prog": "Sevent Meeting of the Board of the Fund for Responding to Loss and Damge", "miti": "2082-06-12", "kaifi": ""}, {"id": 125, "naam": "श्री बालकृष्ण निरौला", "pad": "उपसचिव (कानून)", "desh": "Thimphu,Bhutan", "awadhi": "25 देखि 27 नोभेम्वर सम्म, 202५", "nikaya": "कानून तथा फैसला कार्यान्वयन शाखा, वन तथा वातावरण मन्त्रालय", "prog": "Third HKH Science-Policy-Finance Dialogur:Form Risk to Resilience: Nature-based Solutions for a Gren,Resilienct and Inclusive Hindu Kush Himalaya", "miti": "2082-08-02", "kaifi": ""}, {"id": 126, "naam": "श्री सृजना श्रेष्ठ", "pad": "संरक्षण अधिकृत (प्रा.)", "desh": "Thimphu,Bhutan", "awadhi": "25 देखि 27 नोभेम्वर सम्म, 202५", "nikaya": "राष्ट्रिय निकुन्ज तथा वन्यजन्तु संरक्षण विभाग", "prog": "Third HKH Science-Policy-Finance Dialogur:Form Risk to Resilience: Nature-based Solutions for a Gren,Resilienct and Inclusive Hindu Kush Himalaya", "miti": "2082-08-02", "kaifi": ""}, {"id": 127, "naam": "श्री दीपक ज्ञवाली", "pad": "सि.डि.के.(प्रा.)", "desh": "Bangkok, Thailand", "awadhi": "24 देखि 28 नोभेम्वर सम्म, 202५", "nikaya": "वातावरण विभाग, ववरमहल ।", "prog": "Clean Air Week 2025", "miti": "2082-08-02", "kaifi": ""}, {"id": 128, "naam": "श्री यमुना पौडेल", "pad": "योजना अधिकृत (प्रा.)", "desh": "India", "awadhi": "1 डिसेम्बर देखि 5 202५,", "nikaya": "राष्ट्रिय निकुञ्ज तथा वन्यजन्तु संरक्षण विभाग ।", "prog": "Regional Training and Exposure on Natural Capital Accounting in India", "miti": "2082-08-02", "kaifi": ""}, {"id": 129, "naam": "श्री विजय अधिकारी", "pad": "मेकानिकल इन्जिनियर  (रा.प.तृ) (प्रा.)", "desh": "Gneneva,Switzerland", "awadhi": "2 फेव्रअरी देखि 6 सम्म, 202६", "nikaya": "वातावरण मापदण्ड तथा अनुगमन शाखा", "prog": "ISP-CWPPI", "miti": "2082-08-07", "kaifi": ""}, {"id": 130, "naam": "डा.राजेन्द्र के.सी.", "pad": "महानिर्देशक", "desh": "Bangkok, Thailand", "awadhi": "24 देखि 28 नोभेम्वर सम्म, 202५", "nikaya": "वन अनुसन्धान तथा प्रशिक्षण केन्द्र बबरमहल", "prog": "Clean Air Week 2025", "miti": "2082-08-07", "kaifi": ""}, {"id": 131, "naam": "श्री दीपक ज्ञवाली", "pad": "सह सचिव", "desh": "Vienna,Austria", "awadhi": "23 फेव्रअरी देखि  25 सम्म, 202६", "nikaya": "वातावरण तथा जैविक विविधता महाशाखा", "prog": "GlobalSummit on \"Advancing Sustainable", "miti": "2082-08-10", "kaifi": ""}, {"id": 132, "naam": "श्री दिनेश ढकाल", "pad": "पशु स्वास्थ्य प्राविधिक", "desh": "Quatar", "awadhi": "202५10डिसेम्बर देखि 10 जनवरी  २०२६ सम्म,", "nikaya": "चितवन राष्ट्रिय निकुन्ज कार्यालय ,चितवन", "prog": "Fligh, Accommodation and Transporation Cost", "miti": "2082-08-10", "kaifi": ""}, {"id": 133, "naam": "श्री कुशल श्रेष्ठ", "pad": "अनुगमन अधिकृत", "desh": "Paro,Bhutan", "awadhi": "3  देखि 4  डिसेम्बर २०२5 सम्म,", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "The Regional Consultation on Enhancing Climate Actions Actions in the Hindu Kush Himalaya Readiness and Access to Climate", "miti": "2082-07-11", "kaifi": ""}, {"id": 134, "naam": "श्री राजेन्द्र ढुङ्गाना", "pad": "उपसचिव प्रा", "desh": "Rome,Italy", "awadhi": "16 देखि फेव्रअरी  19  सम्म, 202६", "nikaya": "जैविक विविधता शाखा", "prog": "The Sixth Meeting of the Subsidiary Body on Implemention (SBI6)", "miti": "2082-08-16", "kaifi": ""}, {"id": 135, "naam": "श्री शिवजी शर्मा", "pad": "सि.डि.ई", "desh": "Thimphu,Bhutan", "awadhi": "15  देखि 16डिसेम्बर   २०२5 सम्म,", "nikaya": "वातावरण मापदण्ड तथा अनुगमन शाखा,वन तथा वातावरण मन्त्रालय", "prog": "The 3rd Science,Policy and Finance Dialogue for Regional Air Quality Management in the Indo-Gangetic Plain and Himalayan Foothills (UGO-HF)", "miti": "2082-08-16", "kaifi": ""}, {"id": 136, "naam": "श्री सुभाष खत्री", "pad": "उपसचिव प्रा", "desh": "Thimphu,Bhutan", "awadhi": "15  देखि 16डिसेम्बर   २०२5 सम्म,", "nikaya": "वातावरण विभाग, ववरमहल ।", "prog": "The 3rd Science,Policy and Finance Dialogue for Regional Air Quality Management in the Indo-Gangetic Plain and Himalayan Foothills (UGO-HF)", "miti": "2082-08-16", "kaifi": ""}, {"id": 137, "naam": "श्री खिलानाथ दाहाल", "pad": "वन अधिकृत", "desh": "Thimphu,Bhutan", "awadhi": "15  देखि 16डिसेम्बर   २०२5 सम्म,", "nikaya": "वन क्षेत्र भू उपयोग शाखा,वन तथा वातावरण मन्त्रालय", "prog": "The 3rd Science,Policy and Finance Dialogue for Regional Air Quality Management in the Indo-Gangetic Plain and Himalayan Foothills (UGO-HF)", "miti": "2082-08-16", "kaifi": ""}, {"id": 138, "naam": "श्री प्रकाश के सी", "pad": "वातावरण निरीक्षक,", "desh": "Thimphu,Bhutan", "awadhi": "15  देखि 16डिसेम्बर   २०२5 सम्म,", "nikaya": "वातावरण विभाग, ववरमहल ।", "prog": "The 3rd Science,Policy and Finance Dialogue for Regional Air Quality Management in the Indo-Gangetic Plain and Himalayan Foothills (UGO-HF)", "miti": "2082-08-16", "kaifi": ""}, {"id": 139, "naam": "श्री सवनम पाठक", "pad": "वन अधिकृत", "desh": "Thimphu,Bhutan", "awadhi": "15  देखि 16डिसेम्बर   २०२5 सम्म,", "nikaya": "वन तथा भू संरक्षण विभाग", "prog": "The 3rd Science,Policy and Finance Dialogue for Regional Air Quality Management in the Indo-Gangetic Plain and Himalayan Foothills (UGO-HF)", "miti": "2082-08-16", "kaifi": ""}, {"id": 140, "naam": "श्री सुजन महर्जन", "pad": "उप सचिव (प्रा.)", "desh": "Bangkok, Thailand", "awadhi": "24 फेव्रअरी देखि 26 सम्म, 202६", "nikaya": "चुरे उत्थानशिल आयोजना बबरमहल", "prog": "Community Resilience Partnership Program (CRPP) Partnership Forum 2026", "miti": "2082-08-16", "kaifi": ""}, {"id": 141, "naam": "श्री दीपक ज्ञवाली", "pad": "सहसचिव प्रा.", "desh": "Rome,Italy", "awadhi": "10 फेव्रअरी देखि 19 सम्म, 202६", "nikaya": "वातावरण तथा जैविक विविधता महाशाखा", "prog": "Workshop on Resource Mobilization,Regional Consultations and the Sixth Meeting of the subsidiary Body on Implemention (SBI6)", "miti": "2082-08-19", "kaifi": ""}, {"id": 142, "naam": "श्री भूपेन्द्र थापा", "pad": "सहसचिव प्रशासन", "desh": "India", "awadhi": "16 फेव्रअरी देखि 21 सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Cross Learing Programme and Study Tour to Kaziranga National Park", "miti": "2082-09-20", "kaifi": ""}, {"id": 143, "naam": "श्री वेद कुमार ढकाल", "pad": "उप महानिर्देशक", "desh": "India", "awadhi": "16 फेव्रअरी देखि 21 सम्म, 202६", "nikaya": "राष्ट्रिय निकुञ्ज तथा वन्यजन्तु संरक्षण विभाग ।", "prog": "", "miti": "2082-09-20", "kaifi": ""}, {"id": 144, "naam": "श्री प्रकाश लामिछाने", "pad": "अनुसन्धान अधिकृत", "desh": "Bangkok, Thailand", "awadhi": "24 फेव्रअरी देखि 26 सम्म, 202६", "nikaya": "उत्सर्जन मापन शाखा", "prog": "", "miti": "2082-09-20", "kaifi": ""}, {"id": 145, "naam": "श्री नरेश शर्मा", "pad": "उप सचिव प्रा", "desh": "Washington D.C", "awadhi": "4 फेव्रअरी देखि 6 सम्म, 202६", "nikaya": "जलवायु प्रविधी शाखा", "prog": "Fortyfifth Meeting of the Adaptation Fund Board and the Tirth-six Meeting of the Board Committees", "miti": "2082-09-20", "kaifi": ""}, {"id": 146, "naam": "श्री राजेन्द्र ढुङ्गाना", "pad": "उपसचिव प्रा", "desh": "United Kingdom of Great Britain and Northern Ireland (UK)", "awadhi": "16 फेव्रअरी देखि 21 सम्म, 202६", "nikaya": "जैविक विविधता शाखा वन तथा वातावरण मन्त्रालय", "prog": "United Kingdom of Great Britain and Northern Ireland (UK)", "miti": "2082-09-20", "kaifi": ""}, {"id": 147, "naam": "डा. गणेश पन्त", "pad": "वरिष्ठ संरक्षण अधिकृतत्", "desh": "India", "awadhi": "24 फेव्रअरी देखि 26 सम्म, 202६", "nikaya": "चितवन राष्ट्रिय निकुन्ज कार्यालय ,चितवन", "prog": "Cross Learing Programme and Study Tour to Kaziranga National Park", "miti": "2082-09-20", "kaifi": ""}, {"id": 148, "naam": "श्री सुमन सुवेदी", "pad": "उपसचिव प्रा", "desh": "Manila, Philippines", "awadhi": "10 फेव्रअरी देखि 12 सम्म, 202६", "nikaya": "अनुकुलन शाखा,वन तथा वातावरण मन्त्रालय", "prog": "Regional Workshop on Loss And Damage From Climate change in Agri-Food System", "miti": "2082-09-20", "kaifi": ""}, {"id": 149, "naam": "डा. बुद्धिसागर पौडेल", "pad": "महानिर्देशक", "desh": "Karnataka,India", "awadhi": "9 फेव्रअरी देखि 13 सम्म, 202६", "nikaya": "राष्ट्रिय निकुञ्ज तथा वन्यजन्तु संरक्षण विभाग ।", "prog": "Nagarhole-Bandipur Tiger Reserves, ITEC Executive Course on Capacity Building for Wildlife and Conservation Practitioners", "miti": "2082-09-20", "kaifi": ""}, {"id": 150, "naam": "श्री गणेश पौडेल", "pad": "सदस्य सचिव", "desh": "Karnataka,India", "awadhi": "9 फेव्रअरी देखि 13 सम्म, 202६", "nikaya": "राष्ट्रियपति चुरे तराई मधेश संरक्षण विकास समिति,खुमलटार", "prog": "Nagarhole-Bandipur Tiger Reserves, ITEC Executive Course on Capacity Building for Wildlife and Conservation Practitioners", "miti": "2082-09-20", "kaifi": ""}, {"id": 151, "naam": "श्री सुविना चालिसे", "pad": "कानून अधिकृत रा.प.तृतिय", "desh": "India", "awadhi": "9 फेव्रअरी देखि 20 सम्म, 202६", "nikaya": "वन तथा भूसंरक्षण विभाग", "prog": "Investigation/Prosecution/Asset Recovery for EnforcementOfficials", "miti": "2082-09-20", "kaifi": ""}, {"id": 152, "naam": "श्री उन्नती शर्मा", "pad": "अनुसन्धान अधिकृत", "desh": "India", "awadhi": "9 फेव्रअरी देखि 20 सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Investigation/Prosecution/Asset Recovery for EnforcementOfficials", "miti": "2082-09-20", "kaifi": ""}, {"id": 153, "naam": "श्री जनक आचार्य", "pad": "अनुसन्धान", "desh": "Bangkok, Thailand", "awadhi": "24 फेव्रअरी देखि 26 सम्म, 202६", "nikaya": "वन अनुसन्धान तथा प्रशिक्षण केन्द्र बबरमहल हाल वन तथा वातावरण मन्त्रालय", "prog": "The Asia Regional Workshop on Taking Stock of First BTRs Getting Ready for Second BTRs", "miti": "2082-09-20", "kaifi": ""}, {"id": 154, "naam": "डा. महेश्वर ढकाल", "pad": "सहसचिव प्रा.", "desh": "Bangkok, Thailand", "awadhi": "24 मार्च देखि 2७ सम्म, 202६", "nikaya": "जलवायू परिवर्तन व्यवस्थापन महाशाखा,", "prog": "Sixty Fourth Session of the Intergovernmental Panel on Climate Change (IPCC)", "miti": "2082-09-25", "kaifi": ""}, {"id": 155, "naam": "श्री अन्जनी कुमार अधिकारी", "pad": "सि.डि.के (रा.प.द्धि.प्रा)", "desh": "Bangkok, Thailand", "awadhi": "10 फेव्रअरी देखि 12 सम्म, 202६", "nikaya": "वातावरण विभाग, ववरमहल ।", "prog": "Environmental Dimensions of AMR-a Design Thinking Approach to Advance Action in Asia Pacific", "miti": "2082-09-28", "kaifi": ""}, {"id": 156, "naam": "श्री विशाल घिमिरे", "pad": "सहसचिव प्रा.", "desh": "Thimphu,Bhutan", "awadhi": "15 जनवरी देखि 16 सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Fourth Meeting of BIMSTEC Joint Working Group on Environment and Climate Change (JWG-ECC)", "miti": "2082-09-22", "kaifi": ""}, {"id": 157, "naam": "श्री अमृत शर्मा", "pad": "संरक्षण अधिकृत रा.प. तृतीय (प्रा)", "desh": "Thimphu,Bhutan", "awadhi": "15 जनवरी देखि 16 सम्म, 202६", "nikaya": "विकास सहायत समन्वय शाखा,वन तथा वातावरण मन्त्रालय", "prog": "Fourth Meeting of BIMSTEC Joint Working Group on Environment and Climate Change (JWG-ECC)", "miti": "2082-09-22", "kaifi": ""}, {"id": 158, "naam": "डा. शिव खनाल", "pad": "उपसचिव प्रा", "desh": "Bangkok, Thailand", "awadhi": "९ मार्च देखि १३ सम्म, 202६(online) 23 मार्च देखि 27 सम्म,", "nikaya": "उत्सर्जन मापन शाखा वन तथा वातावरण मन्त्रालय", "prog": "Training on Maximizing Impacts of One Health Operationalization:From Concept to Implementation", "miti": "2082-09-28", "kaifi": ""}, {"id": 159, "naam": "श्री एकराज चौलागाई", "pad": "उपसचिव प्रा", "desh": "Colombo,Srilanka", "awadhi": "17 फेव्रअरी देखि 19 सम्म, 202६", "nikaya": "माननीय मन्त्रीको सचिवालय,वन तथा वातावरण मन्त्रालय", "prog": "Consultation Workshop of National Focal Point in Preparation For the 17th Meeting of the Governing Council of Sacep", "miti": "2082-09-28", "kaifi": ""}, {"id": 160, "naam": "श्री कन्चन कुमार नायक", "pad": "सि डि के (रा.प.द्धि.प्रा)", "desh": "Colombo,Srilanka", "awadhi": "17 फेव्रअरी देखि 19 सम्म, 202६", "nikaya": "वातावरण मन्त्रालय", "prog": "Consultation Workshop of National Focal Point in Preparation For the 17th Meeting of the Governing Council of Sacep", "miti": "2082-09-28", "kaifi": ""}, {"id": 161, "naam": "श्री भुपेन्द्र थापा", "pad": "सहसचिव", "desh": "Colombo,Srilanka", "awadhi": "१९ जनवरी देखि २० सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Regional Workshop on Operationalizing One Health in South Asia", "miti": "2082-09-30", "kaifi": ""}, {"id": 162, "naam": "श्री दीपक ज्ञवाली", "pad": "सहसचिव प्रा.", "desh": "Colombo,Srilanka", "awadhi": "१९ जनवरी देखि २० सम्म, 202६", "nikaya": "वातावरण तथा जैविक विविधता महाशाखा", "prog": "Regional Workshop on Operationalizing One Health in South Asia", "miti": "2082-09-30", "kaifi": ""}, {"id": 163, "naam": "श्री प्रेम प्रसाद देवकोटा", "pad": "उपसचिव", "desh": "Colombo,Srilanka", "awadhi": "१७ जनवरी देखि १९ सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Consltation Workshop of National Focal Point in Preparation for the 17th Meeting of the governing Council of SACEP", "miti": "2082-09-30", "kaifi": ""}, {"id": 164, "naam": "डा. महेश्वर ढकाल", "pad": "सहसचिव प्रा.", "desh": "Colombo,Srilanka", "awadhi": "१९ जनवरी देखि २० सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Regional Workshop on Operationalizing One Health in South Asia", "miti": "2082-09-30", "kaifi": ""}, {"id": 165, "naam": "श्री धनन्जय लामिछाने", "pad": "उपमहानिर्देशक", "desh": "India", "awadhi": "16 फेव्रअरी देखि 21 सम्म, 202६", "nikaya": "वन तथा भू संरक्षण", "prog": "Cross Learing Programme and Study Tour to Kaziranga National Park", "miti": "2082-09-30", "kaifi": ""}, {"id": 166, "naam": "डा. शिव खनाल", "pad": "उपसचिव (प्रा)", "desh": "Bangkok, Thailand", "awadhi": "15 फेव्रअरी देखि 19 सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Learning Visit to Thailand on Enhanced Transparency Framework (BTR),MRV, and Biennial Transparency Report (BTR)", "miti": "2082-10-19", "kaifi": ""}, {"id": 167, "naam": "श्री विर बहादुर रावल", "pad": "सि.डी.ई", "desh": "Bangkok, Thailand", "awadhi": "15 फेव्रअरी देखि 19 सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Learning Visit to Thailand on Enhanced Transparency Framework (BTR),MRV, and Biennial Transparency Report (BTR)", "miti": "2082-10-19", "kaifi": ""}, {"id": 168, "naam": "श्री विमल आचार्य", "pad": "उपसचिव (प्रा)", "desh": "Bangkok, Thailand", "awadhi": "15 फेव्रअरी देखि 19 सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Learning Visit to Thailand on Enhanced Transparency Framework (BTR),MRV, and Biennial Transparency Report (BTR)", "miti": "2082-10-19", "kaifi": ""}, {"id": 169, "naam": "श्री रामराज गौतम", "pad": "शाखा अधिकृत", "desh": "Bangkok, Thailand", "awadhi": "15 फेव्रअरी देखि 19 सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Learning Visit to Thailand on Enhanced Transparency Framework (BTR),MRV, and Biennial Transparency Report (BTR)", "miti": "2082-10-19", "kaifi": ""}, {"id": 170, "naam": "श्री हिरालाल आचार्य", "pad": "शाखा अधिकृत", "desh": "Bangkok, Thailand", "awadhi": "15 फेव्रअरी देखि 19 सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Learning Visit to Thailand on Enhanced Transparency Framework (BTR),MRV, and Biennial Transparency Report (BTR)", "miti": "2082-10-19", "kaifi": ""}, {"id": 171, "naam": "श्री प्रकाश लामिछाने", "pad": "अनुसन्धान अधिकृत", "desh": "Bangkok, Thailand", "awadhi": "15 फेव्रअरी देखि 19 सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Learning Visit to Thailand on Enhanced Transparency Framework (BTR),MRV, and Biennial Transparency Report (BTR)", "miti": "2082-10-19", "kaifi": ""}, {"id": 172, "naam": "श्री सलिना अर्याल", "pad": "कानून अधिकृत रा.प.तृतिय", "desh": "Bangkok, Thailand", "awadhi": "15 फेव्रअरी देखि 19 सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Learning Visit to Thailand on Enhanced Transparency Framework (BTR),MRV, and Biennial Transparency Report (BTR)", "miti": "2082-10-19", "kaifi": ""}, {"id": 173, "naam": "श्री सम्झना आचार्य", "pad": "लेखापाल", "desh": "Bangkok, Thailand", "awadhi": "15 फेव्रअरी देखि 19 सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Learning Visit to Thailand on Enhanced Transparency Framework (BTR),MRV, and Biennial Transparency Report (BTR)", "miti": "2082-10-19", "kaifi": ""}, {"id": 174, "naam": "श्री भूपेन्द्र थापा", "pad": "सहसचिव", "desh": "New Delhi, India", "awadhi": "25 फेव्रअरी देखि 27 सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "World Sustainable Development Summit (WSDS), 2026", "miti": "2082-10-23", "kaifi": ""}, {"id": 175, "naam": "श्री गणेश पौडेल", "pad": "शाखा अधिकृत रा.प.तृतिय", "desh": "India", "awadhi": "9 फेव्रअरी देखि 20 सम्म, 202६", "nikaya": "वन तथा भू-संरक्षण विभाग।", "prog": "InvestigationProsecutionAsset Recovery for Enforcement Officials", "miti": "2082-10-25", "kaifi": "सहभागी नभएको"}, {"id": 176, "naam": "श्री उन्नती शर्मा", "pad": "अनुसन्धान अधिकृत रा.प.तृतिय", "desh": "India", "awadhi": "9 फेव्रअरी देखि 20 सम्म, 202६", "nikaya": "राष्ट्रिय निकुञ्ज तथा वन्यजन्तु संरक्षण विभाग ।", "prog": "InvestigationProsecutionAsset Recovery for Enforcement Officials", "miti": "2082-10-25", "kaifi": ""}, {"id": 177, "naam": "श्री एकराज चौलागाई", "pad": "निजी सचिव", "desh": "India", "awadhi": "9 फेव्रअरी देखि 20 सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "World Sustainable Development Summit (WSDS), 2026", "miti": "2082-10-29", "kaifi": ""}, {"id": 178, "naam": "श्री मधुदेवी घिमिरे", "pad": "उपसचिव प्रा", "desh": "Singapore", "awadhi": "8 जुन देखि १2 सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Introduction to Clean Energy Transition Towards Net Zero Target", "miti": "2082-11-11", "kaifi": ""}, {"id": 179, "naam": "श्री जीवन नेपाल", "pad": "शाखा अधिकृत", "desh": "Singapore", "awadhi": "8 जुन देखि १2 सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Introduction to Clean Energy Transition Towards Net Zero Target", "miti": "2082-11-11", "kaifi": ""}, {"id": 180, "naam": "श्री रामचन्द्र भुषाल", "pad": "शाखा अधिकृत", "desh": "Thailand", "awadhi": "11 मार्च देखि १3 सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Regional Workshop on Strengthening Capacity for Multi Sectorial Inclusion in the National Adaptation Plan (NAP) Process in the Pacific Region", "miti": "2082-11-11", "kaifi": ""}, {"id": 181, "naam": "श्री केशवराज जोशी", "pad": "वातावरण निरीक्षण", "desh": "Thailand", "awadhi": "11 मार्च देखि १3 सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Regional Workshop on Strengthening Capacity for Multi Sectorial Inclusion in the National Adaptation Plan (NAP) Process in the Pacific Region", "miti": "2082-11-11", "kaifi": ""}, {"id": 182, "naam": "श्री नरेश शर्मा", "pad": "उपसचिव प्रा", "desh": "Germany", "awadhi": "६ अप्रिल देखि १० सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Forty Fify Fifth Meeting on the Adaptation Fund Board and the Thirty-Six Meeting of the Board Committees", "miti": "2082-11-11", "kaifi": ""}, {"id": 183, "naam": "श्री विर बहादुर रावल", "pad": "सि डि के", "desh": "फिलिपिन्स", "awadhi": "१५ अप्रिल देखि २० सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "South-South Peer Learing Exchange on Carbon Finance", "miti": "2082-11-11", "kaifi": ""}, {"id": 184, "naam": "श्री अस्मिता ढकाल", "pad": "शाखा अधिकृत", "desh": "फिलिपिन्स", "awadhi": "१५ अप्रिल देखि २० सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "South-South Peer Learing Exchange on Carbon Finance", "miti": "2082-11-11", "kaifi": ""}, {"id": 185, "naam": "श्री लक्ष्मी पौडेल", "pad": "शाखा अधिकृत", "desh": "फिलिपिन्स", "awadhi": "१५ अप्रिल देखि २० सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "South-South Peer Learing Exchange on Carbon Finance", "miti": "2082-11-11", "kaifi": ""}, {"id": 186, "naam": "श्री शान्ता काफ्ले", "pad": "वन अधिकृत", "desh": "फिलिपिन्स", "awadhi": "१५ अप्रिल देखि २० सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "South-South Peer Learing Exchange on Carbon Finance", "miti": "2082-11-11", "kaifi": ""}, {"id": 187, "naam": "श्री मिलन ढुङ्गाना", "pad": "उपसचिव प्रा", "desh": "केन्या", "awadhi": "१५ अप्रिल देखि २० सम्म, 202६", "nikaya": "वन अनुसन्धान तथा प्रशिक्षण केन्द्र", "prog": "Global Transparency Community", "miti": "2082-11-11", "kaifi": ""}, {"id": 188, "naam": "श्री शरद बाबु पंगेनी", "pad": "उपसचिव प्रा", "desh": "घाना", "awadhi": "१३ अप्रिल देखि १५ सम्म, 202६", "nikaya": "राष्ट्रियपति चुरे तराई मधेश संरक्षण विकास समिति,खुमलटार", "prog": "Cartagena Dialogue Heads of Delegation Meeting", "miti": "2082-11-11", "kaifi": ""}, {"id": 189, "naam": "श्री हरिमाया पौडयाल", "pad": "शाखा अधिकृत", "desh": "घाना", "awadhi": "१३ अप्रिल देखि १५ सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Cartagena Dialogue Heads of Delegation Meeting", "miti": "2082-11-11", "kaifi": ""}, {"id": 190, "naam": "श्री हसना श्रेष्ठ सिंह", "pad": "वातावरण निरीक्षक", "desh": "Bangkok, Thailand", "awadhi": "१1 मार्च देखि १3 सम्म, 202६", "nikaya": "वातावरण विभाग, ववरमहल ।", "prog": "12th Better Air Quality Conference (BAQ2026)", "miti": "2082-11-11", "kaifi": ""}, {"id": 191, "naam": "श्री अमुल कुमार आचार्य", "pad": "अनुसन्धान अधिकृत", "desh": "China", "awadhi": "9अप्रिल देखि १3 सम्म, 202६", "nikaya": "वन अनुसन्धान तथा प्रशिक्षण केन्द्र,बबरमहल", "prog": "Regional Capacity Building Workshop on Reporting-AnnexII", "miti": "14/11/2082", "kaifi": ""}, {"id": 192, "naam": "श्री राजु गुरुङ्ग", "pad": "भूसंरक्षण   अधिकृत (रा.प.तृ)", "desh": "China", "awadhi": "9अप्रिल देखि १3 सम्म, 202६", "nikaya": "वन अनुसन्धान तथा प्रशिक्षण केन्द्र,बबरमहल", "prog": "Regional Capacity Building Workshop on Reporting-AnnexII", "miti": "14/11/2082", "kaifi": ""}, {"id": 193, "naam": "श्री उद्धव बहादुर घिमिरे", "pad": "उप महानिर्देशक", "desh": "Manila, Philippines", "awadhi": "16 मार्च देखि १९ सम्म, 202६", "nikaya": "भू संरक्षण विभाग", "prog": "Asia and the Pacific Food systems Forum 2026", "miti": "15/11/2082", "kaifi": ""}, {"id": 194, "naam": "डा. महेश्वर ढकाल", "pad": "सहसचिव प्रा.", "desh": "Livingstone,Zabia", "awadhi": "22 अप्रिल देखि २४ सम्म, 202६", "nikaya": "वातावरण मन्त्रालय", "prog": "Eighth Meeting of the board of the fund for responding to Loss and Damage", "miti": "15/11/2082", "kaifi": ""}, {"id": 195, "naam": "श्री चन्द्र शेखर चौधरी", "pad": "वरिष्ठ संरक्षण अधिकृत", "desh": "India", "awadhi": "12 मार्च देखि 13 सम्म, 202६", "nikaya": "शुक्लाफांट निकुन्ज कार्यालय", "prog": "Consultation Qorkshop on Strengthening Conservation and Resilience of Globally Significant Wild Cat Landscapes Through a Focus on Small Cat and Leopard Conservation", "miti": "25/11/2082", "kaifi": ""}, {"id": 196, "naam": "श्री चेत नारायण खरेल", "pad": "वरिष्ठ पशु चिकित्सक अधिकृत", "desh": "Colombo,Srilanka", "awadhi": "6 अप्रिल देखि 7 सम्म, 202६", "nikaya": "चितवन राष्ट्रिय निकुन्ज कार्यालय चितवन", "prog": "Regional Multi-Country Trainers (TOT) on the Surveillance and Information Sharing Operational Tool (SISOT) for South-East Asia", "miti": "26/11/2082", "kaifi": ""}, {"id": 197, "naam": "श्री दीपक अधिकारी", "pad": "उपसचिव लेखा", "desh": "Ghana", "awadhi": "13 अप्रिल देखि 15 सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Cartagena Dialogue Heads of Delegation Meeting", "miti": "26/11/2082", "kaifi": ""}, {"id": 198, "naam": "डा. रामचन्द्र कँडेल", "pad": "सहसचिव प्रा.", "desh": "Andorra", "awadhi": "26 मार्च देखि २८ सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "7th Global Meeting of the Mountaion Partnership", "miti": "26/11/2082", "kaifi": ""}, {"id": 199, "naam": "श्री वेद कुमार ढकाल", "pad": "उपमहानिर्देशक", "desh": "China", "awadhi": "18 मे देखि २२ सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Global Knowledge Exhange Workshop:", "miti": "2082-01-12", "kaifi": ""}, {"id": 200, "naam": "डा. महेश्वर ढकाल", "pad": "सहसचिव प्रा.", "desh": "Bonn,Germany", "awadhi": "8 जुन देखि 18सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Sixty-fourth sessions of the Subsidiary Body for Scientific and Technological Advice and the Subsidiary Body for Implementation (SB64)", "miti": "2082-11-12", "kaifi": ""}, {"id": 201, "naam": "डा.राजेन्द्र के.सी.", "pad": "सहसचिव प्रा.", "desh": "South Korea", "awadhi": "4 मे देखि 8सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Air Quality Management Konwledge", "miti": "2082-08-12", "kaifi": ""}, {"id": 202, "naam": "डा. महेश्वर ढकाल", "pad": "सहसचिव प्रा.", "desh": "Dili,Timor-Leste", "awadhi": "28 अप्रिल देखि 30सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "StrategyMeeting of the Least Developed", "miti": "2082-08-12", "kaifi": ""}, {"id": 203, "naam": "श्री भूपेन्द्र थापा", "pad": "सहसचिव", "desh": "Kigali,Rwanda", "awadhi": "18 मे देखि २१ सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "NAP Expo 2026", "miti": "2082-08-12", "kaifi": ""}, {"id": 204, "naam": "श्री नुरेन्द्र अर्याल", "pad": "वरिष्ठ संरक्षण अधिकृत रा.प द्धितिय प्रा .", "desh": "China", "awadhi": "18 मे देखि २2 सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Global Knowledge Exhange Workshop: Strengthening The Effectiveness and Impact of Protected and ConservedArea", "miti": "2082-08-12", "kaifi": ""}, {"id": 205, "naam": "श्री एकराज चौलागाई", "pad": "उपसचिव", "desh": "Yeosu,Republic of Korea", "awadhi": "18 मे देखि २2 सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Global Knowledge Exhange Workshop: Strengthening The Effectiveness and Impact of Protected and ConservedArea", "miti": "2082-08-12", "kaifi": ""}, {"id": 206, "naam": "श्री सन्तोष कार्की", "pad": "शाखा अधिकृत", "desh": "Yeosu,Republic of Korea", "awadhi": "18 मे देखि २2 सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Peer Exchange Workshop on NationallyDetermined Contribution (NDC) Implementation At the Climate Week", "miti": "2082-08-12", "kaifi": ""}, {"id": 207, "naam": "श्री सुमन सुवेदी", "pad": "उपसचिव प्रा", "desh": "Yeosu,Republic of Korea", "awadhi": "२1 अप्रिल, देखि २५ सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Climate Week-3", "miti": "2082-08-12", "kaifi": ""}, {"id": 208, "naam": "श्री हरिवंश आचार्य", "pad": "उपसचिव प्रा", "desh": "South Korea", "awadhi": "4 मे, देखि ८ सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Air Quality Management Konwledge Event", "miti": "2082-08-12", "kaifi": ""}, {"id": 209, "naam": "डा. प्रकाश सिंह थापा", "pad": "उपसचिव प्रा", "desh": "Yeosu,Republic of Korea", "awadhi": "२१ मे, देखि २३ सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Seventh Investment-focused Event under the Sharm el-Sheikh Mitigation ambition and Implementation work Programme Yeosu", "miti": "2082-08-12", "kaifi": ""}, {"id": 210, "naam": "श्री विष्णुहरि देवकोटा", "pad": "उपसचिव प्रा", "desh": "Kuala Lumpur,Malaysia", "awadhi": "२5 मार्च, देखि २६ सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Southeast Asia-South Asia Preparatory Meeting for Cop31", "miti": "2082-08-12", "kaifi": ""}, {"id": 211, "naam": "श्री दीपा वली", "pad": "उपसचिव प्रा", "desh": "Hangzhou,China", "awadhi": "२3 मार्च, देखि २4 सम्म, 202६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Tenth Meeting of the APFnet Council", "miti": "2082-08-12", "kaifi": ""}, {"id": 212, "naam": "श्री रमेश बहादुर बस्नेत", "pad": "उपसचिव प्रा", "desh": "Quebec City, Canada", "awadhi": "16 देखि 23 मे. 2026", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "45th Annual Conference of the International Association for Impact Assessment", "miti": "17/12/2082", "kaifi": ""}, {"id": 213, "naam": "श्री विष्णु प्रसाद श्रेष्ठ", "pad": "वरिष्ठ संरक्षण अधिकृत", "desh": "Quebec City, Canada", "awadhi": "16 देखि 23 मे. 2026", "nikaya": "राष्ट्रिय निकुञ्ज तथा वन्यजन्तु संरक्षण विभाग ।", "prog": "45th Annual Conference of the International Association for Impact Assessment", "miti": "17/12/2082", "kaifi": ""}, {"id": 214, "naam": "श्री आरती श्रेष्ठ", "pad": "वातावरण निरीक्षक", "desh": "Quebec City, Canada", "awadhi": "16 देखि 23 मे. 2026", "nikaya": "वातावरण विभाग, ववरमहल ।", "prog": "45th Annual Conference of the International Association for Impact Assessment", "miti": "17/12/2082", "kaifi": ""}, {"id": 215, "naam": "श्री रीति आचार्य", "pad": "तालिम अधिकृत", "desh": "Quebec City, Canada", "awadhi": "16 देखि 23 मे. 2026", "nikaya": "वन अनुसन्धान तथा प्रशिक्षण केन्द्र, ववरमहल ।", "prog": "45th Annual Conference of the International Association for Impact Assessment", "miti": "17/12/2082", "kaifi": ""}, {"id": 216, "naam": "श्री प्रयास घिमिरे", "pad": "वन अधिकृत", "desh": "Quebec City, Canada", "awadhi": "16 देखि 23 मे. 2026", "nikaya": "वन तथा भू संरक्षण विभाग ।", "prog": "45th Annual Conference of the International Association for Impact Assessment", "miti": "17/12/2082", "kaifi": ""}, {"id": 217, "naam": "श्री जनक आचार्य", "pad": "अनुसन्धान अधिकृत", "desh": "Bonn,Germany", "awadhi": "8 देखि 18 जुन, 2026", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Sixty-Fourth sessions of the Subsidiary Body for Scientific and Technological Advice and the Subsidiary Body for Implementation (SB64) United Nations Climate Change Conference", "miti": "18/12/2082", "kaifi": ""}, {"id": 218, "naam": "श्री हरिभद्र आचार्य", "pad": "उपसचिव (प्रा.)", "desh": "Bangkok, Thailand", "awadhi": "2 देखि 5 जुन, 2026", "nikaya": "राष्ट्रिय निकुञ्ज तथा वन्यजन्तु संरक्षण विभाग ।", "prog": "Regional Dialogue on the Project \" South Asia Regional Capacity Building for Pandemic Prevention, Preparedness, and Response (PPR) with One Health Approach\" (2-3 June 2026) and the Project Technical Working Group Meeting on Early Warning and Surveillance", "miti": "23/12/2082", "kaifi": ""}, {"id": 219, "naam": "श्री शिव प्रसाद कंडेल", "pad": "पशु चिकित्सक", "desh": "Bangkok, Thailand", "awadhi": "2 देखि 5 जुन, 2026", "nikaya": "बर्दिया राष्ट्रिय निकुञ्ज कार्यालय, बर्दिया ।", "prog": "Regional Dialogue on the Project \" South Asia Regional Capacity Building for Pandemic Prevention, Preparedness, and Response (PPR) with One Health Approach\" (2-3 June 2026) and the Project Technical Working Group Meeting on Early Warning and Surveillance", "miti": "23/12/2082", "kaifi": ""}, {"id": 220, "naam": "श्री धनन्जय लामिछाने", "pad": "उप महानिर्देशक", "desh": "Luang Prabang, Lao PDR", "awadhi": "२५ देखि २९ मे, 2026", "nikaya": "वन तथा भू संरक्षण विभाग", "prog": "Community forests for a Biodiverse future: Governance, Knowledge and Action in the Asia-Pacific region", "miti": "25/12/2082", "kaifi": ""}, {"id": 221, "naam": "श्री ज्ञानेन्द्र कायस्थ", "pad": "वन अधिकृत", "desh": "Luang Prabang, Lao PDR", "awadhi": "16 देखि १८ जुन 2026", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "BIOFIN 12th Eurasia-Pacific (EAPAC) Regional Dialogue on Biodiversity Finance", "miti": "25/12/2082", "kaifi": ""}, {"id": 222, "naam": "डा. शिव खनाल", "pad": "उपसचिव (प्रा.)", "desh": "Bonn,Germany", "awadhi": "8 देखि १८ जुन 2026", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "United Nations Climate Change Conference", "miti": "25/12/2082", "kaifi": ""}, {"id": 223, "naam": "श्री स्मृती पहारी", "pad": "संरक्षण अधिकृत", "desh": "Bonn,Germany", "awadhi": "8 देखि १८ जुन 2026", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "United Nations Climate Change Conference", "miti": "25/12/2082", "kaifi": ""}, {"id": 224, "naam": "श्री प्रेम प्रसाद देवकोटा", "pad": "उपसचिव", "desh": "Bonn,Germany", "awadhi": "8 देखि १८ जुन 2026", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "United Nations Climate Change Conference", "miti": "25/12/2082", "kaifi": ""}, {"id": 225, "naam": "डा. प्रकाश सिंह थापा", "pad": "उपसचिव (प्रा.)", "desh": "Bonn,Germany", "awadhi": "8 देखि १८ जुन 2026", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "United Nations Climate Change Conference", "miti": "25/12/2082", "kaifi": ""}, {"id": 226, "naam": "श्री बाबुराम घिमिरे", "pad": "उपसचिव", "desh": "Colombia", "awadhi": "23 देखि २९ अप्रिल 2026", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "4th Ministerial Meeting and 5th senior officials and Santa Marta", "miti": "25/12/2082", "kaifi": ""}, {"id": 227, "naam": "श्री मोहनराज जोशी", "pad": "कानून अधिकृत रा.प.तृतिय", "desh": "Colombia", "awadhi": "23 देखि २९ अप्रिल 2026", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "4th Ministerial Meeting and 5th senior officials and Santa Marta", "miti": "25/12/2082", "kaifi": ""}, {"id": 228, "naam": "श्री सवित देशार", "pad": "वातावरण निरीक्षक", "desh": "Vienna,Austria", "awadhi": "15 देखि 19 जुन 2026", "nikaya": "वातावरण विभाग, ववरमहल ।", "prog": "TC Regional Training Course on Planning and Desing of Pilot for Plastic Waste Recycling", "miti": "25/12/2083", "kaifi": ""}, {"id": 229, "naam": "श्री किरण कुमार पोखरेल", "pad": "वैज्ञानीक अधिकृत", "desh": "Singapore", "awadhi": "३१ अगष्ट देखि ४ सेप्टेम्वर 2026", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Introduction to Climate Negotiations", "miti": "25/12/2082", "kaifi": ""}, {"id": 230, "naam": "श्री विष्णुहरि देवकोटा", "pad": "उपसचिव (प्रा.)", "desh": "Singapore", "awadhi": "3 देखि ७ अगष्ट 2026", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Climate Policy Making", "miti": "25/12/2082", "kaifi": ""}, {"id": 231, "naam": "श्री राजु सापकोटा", "pad": "उपसचिव (प्रा.)", "desh": "Colombia", "awadhi": "23 देखि २९ अप्रिल 2026", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "4th Ministerial Meeting and 5th senior officials and Santa Marta", "miti": "2७/12/2082", "kaifi": ""}, {"id": 232, "naam": "श्री नवराज पुडासैनी", "pad": "केन्द्र प्रमुख", "desh": "Colombia", "awadhi": "१९ देखि २१ मे २०२६", "nikaya": "रेड कार्यान्वयन केन्द्र, ववरमहल ।", "prog": "REDD+ Global Summit 2026", "miti": "2083-02-01", "kaifi": ""}, {"id": 233, "naam": "श्री दीपा वली", "pad": "उपसचिव (प्रा.)", "desh": "Bolivia", "awadhi": "२३ देखि २७ जुन २०२६", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "From Local Success to Global Transformation: Scaling successful producer-Led Solution for Productive Forests and Agroforestry Transformation", "miti": "2083-10-01", "kaifi": ""}, {"id": 234, "naam": "डा. रामसिंह थापा", "pad": "उपसचिव (प्रा.)", "desh": "Harare, Zimbabwe", "awadhi": "१३ देखि १५ मे 2026", "nikaya": "वन तथा वातावरण मन्त्रालय ।", "prog": "Integrated Fire Management Project Incepation and Collaborative Planning Workshop", "miti": "2083-10-01", "kaifi": ""}];
 
 let nextId = 235;
@@ -961,85 +820,18 @@ function populateCountryDropdowns() {
   });
 }
 
-// ====================== AUTH ======================
-function selectRole(role, el) {
-  selectedRole = role;
-  document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  const pg = document.getElementById('passGroup');
-  if (role === 'user') {
-    pg.style.display = 'none';
-    document.getElementById('loginErr').classList.remove('show');
-  } else {
-    pg.style.display = '';
-  }
-}
-
-function togglePassVis() {
-  const inp = document.getElementById('loginPass');
-  const btn = document.getElementById('eyeBtn');
-  if (inp.type === 'password') {
-    inp.type = 'text';
-    btn.textContent = '🙈';
-  } else {
-    inp.type = 'password';
-    btn.textContent = '👁️';
-  }
-}
-
-function doLogin() {
-  const pass = document.getElementById('loginPass').value;
-  const err = document.getElementById('loginErr');
-  if (selectedRole === 'user') {
-    currentRole = 'user';
-  } else if (PASSWORDS[selectedRole] === pass) {
-    currentRole = selectedRole;
-  } else {
-    err.classList.add('show');
-    return;
-  }
-  err.classList.remove('show');
-  document.getElementById('loginOverlay').style.display = 'none';
-  updateRoleBadge();
-  updatePermissions();
-  init();
-}
-
-function doLogout() {
-  if (!confirm('लग आउट गर्ने?')) return;
-  currentRole = null;
-  document.getElementById('loginPass').value = '';
-  document.getElementById('loginOverlay').style.display = 'flex';
-}
-
-function updateRoleBadge() {
-  const labels = {admin:'👑 Admin', head:'📋 Head', user:'👤 User'};
-  const dotCls = {admin:'dot-admin', head:'dot-head', user:'dot-user'};
-  document.getElementById('roleLabel').textContent = labels[currentRole];
-  const dot = document.getElementById('roleDot');
-  dot.className = 'role-dot ' + dotCls[currentRole];
-}
-
-function updatePermissions() {
-  const isAdmin = currentRole === 'admin';
-  const canEdit = currentRole === 'admin' || currentRole === 'head';
-  document.getElementById('addBtn').style.display = isAdmin ? '' : 'none';
-  document.getElementById('deleteAllBtn').style.display = isAdmin ? '' : 'none';
-}
-
 // ====================== FILTERS ======================
 function applyFilters() {
-  const name = document.getElementById('searchName').value.toLowerCase().trim();
+  const name = document.getElementById('searchName').value.trim();
+  const nameLower = name.toLowerCase();
   const country = document.getElementById('filterCountry').value;
   const nikaya = document.getElementById('filterNikaya').value;
-
   filteredRecords = records.filter(r => {
-    if (name && !r.naam.toLowerCase().includes(name)) return false;
+    if (name && !r.naam.includes(name) && !r.naam.toLowerCase().includes(nameLower)) return false;
     if (country && !r.desh.toLowerCase().includes(country.toLowerCase())) return false;
     if (nikaya && r.nikaya !== nikaya) return false;
     return true;
   });
-
   currentPage = 1;
   updateFilterOptions();
   renderTable();
@@ -1048,7 +840,6 @@ function applyFilters() {
 }
 
 function updateFilterOptions() {
-  // Country filter
   const cSel = document.getElementById('filterCountry');
   const cVal = cSel.value;
   const countries = [...new Set(records.map(r => r.desh).filter(Boolean))].sort();
@@ -1059,8 +850,6 @@ function updateFilterOptions() {
     if (c === cVal) o.selected = true;
     cSel.appendChild(o);
   });
-
-  // Nikaya filter
   const nSel = document.getElementById('filterNikaya');
   const nVal = nSel.value;
   const nikayas = [...new Set(records.map(r => r.nikaya).filter(Boolean))].sort();
@@ -1089,135 +878,112 @@ function updateStats() {
 }
 
 // ====================== NOMINATION COUNT ======================
+function toggleCountPanel() {
+  document.getElementById('countPanel').classList.toggle('open');
+}
 function updateCountPanel() {
   const counts = {};
   records.forEach(r => { counts[r.naam] = (counts[r.naam] || 0) + 1; });
   const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]);
   const list = document.getElementById('countList');
+  const currentSearch = document.getElementById('searchName').value.trim();
   list.innerHTML = '';
   sorted.forEach(([name, cnt]) => {
     const div = document.createElement('div');
-    div.className = 'count-item' + (cnt > 1 ? ' highlighted' : '');
-    div.innerHTML = `<span>${name}</span><span class="count-badge ${cnt>1?'multi':''}">${cnt}</span>`;
-    div.onclick = () => {
-      document.getElementById('searchName').value = name;
-      applyFilters();
-    };
+    const isActive = currentSearch === name;
+    div.className = 'count-item' + (cnt > 1 ? ' highlighted' : '') + (isActive ? ' active-filter' : '');
+    div.style.cssText = 'cursor:pointer;user-select:none;' + (isActive ? 'background:#c8f0c8;border-left:4px solid var(--g2);' : '');
+    div.setAttribute('data-name', name);
+    div.innerHTML = `<span style="pointer-events:none">${name}</span><span class="count-badge ${cnt>1?'multi':''}" style="pointer-events:none">${cnt}</span>`;
     list.appendChild(div);
   });
+
+  // Use single event listener on the list container (event delegation)
+  list.onclick = function(e) {
+    const item = e.target.closest('.count-item');
+    if (!item) return;
+    const name = item.getAttribute('data-name');
+    if (!name) return;
+    const searchEl = document.getElementById('searchName');
+    // Toggle: if already filtering by this name, clear it
+    if (searchEl.value.trim() === name) {
+      searchEl.value = '';
+    } else {
+      searchEl.value = name;
+    }
+    // Keep panel open
+    const panel = document.getElementById('countPanel');
+    const wasOpen = panel.classList.contains('open');
+    applyFilters();
+    if (wasOpen) panel.classList.add('open');
+  };
 }
 
-function toggleCountPanel() {
-  const p = document.getElementById('countPanel');
-  p.classList.toggle('open');
-  updateCountPanel();
-}
-
-// ====================== TABLE RENDER ======================
+// ====================== TABLE ======================
 function renderTable() {
   const tbody = document.getElementById('tableBody');
   const empty = document.getElementById('emptyState');
-  tbody.innerHTML = '';
-
-  const start = (currentPage-1) * perPage;
-  const end = Math.min(start + perPage, filteredRecords.length);
-  const pageRecs = filteredRecords.slice(start, end);
-
-  if (pageRecs.length === 0) {
-    empty.style.display = 'block';
-    document.getElementById('paginationBar').style.display = 'none';
-    return;
+  if (!filteredRecords.length) {
+    tbody.innerHTML = ''; empty.style.display = '';
+    document.getElementById('paginationBar').style.display = 'none'; return;
   }
   empty.style.display = 'none';
-  document.getElementById('paginationBar').style.display = 'flex';
-
-  // Count for multi-nomination badge
-  const counts = {};
-  records.forEach(r => { counts[r.naam] = (counts[r.naam]||0)+1; });
-
-  pageRecs.forEach((rec, i) => {
-    const tr = document.createElement('tr');
-    const sn = start + i + 1;
-    const isAdmin = currentRole === 'admin';
-    const canEdit = currentRole === 'admin';
-    const multiNom = counts[rec.naam] > 1;
-
-    tr.innerHTML = `
-      <td class="sn">${sn}</td>
-      <td class="name-cell">${esc(rec.naam)}${multiNom ? ` <span class="pill pill-multi" style="font-size:10px;">×${counts[rec.naam]}</span>` : ''}</td>
-      <td>${esc(rec.pad)}</td>
-      <td>${esc(rec.desh)}</td>
-      <td>${esc(rec.awadhi)}</td>
-      <td>${esc(rec.nikaya)}</td>
-      <td class="program-cell">${esc(rec.prog)}</td>
-      <td>${esc(rec.miti)}</td>
-      <td>${esc(rec.kaifi)}</td>
-      <td class="actions-cell no-print">
-        ${canEdit ? `<button class="act-btn act-edit" onclick="openEditModal(${rec.id})" title="सम्पादन">✏️</button>` : ''}
-        ${isAdmin ? `<button class="act-btn act-del" onclick="confirmDelete(${rec.id})" title="मेटाउनुहोस्">🗑️</button>` : ''}
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-
-  renderPagination();
-}
-
-function esc(s) {
-  if (!s && s !== 0) return '';
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-function renderPagination() {
+  document.getElementById('paginationBar').style.display = '';
   const total = filteredRecords.length;
-  const pages = Math.ceil(total / perPage);
+  const totalPages = Math.ceil(total / perPage);
+  if (currentPage > totalPages) currentPage = 1;
+  const start = (currentPage-1) * perPage;
+  const pageRecs = filteredRecords.slice(start, start+perPage);
+  tbody.innerHTML = pageRecs.map((r, i) => `
+    <tr>
+      <td class="sn">${start+i+1}</td>
+      <td class="name-cell">${esc(r.naam)}${records.filter(x=>x.naam===r.naam).length>1?'<br><span class="pill pill-multi">बहु मनोनयन</span>':''}</td>
+      <td>${esc(r.pad)}</td>
+      <td>${esc(r.desh)}</td>
+      <td>${esc(r.awadhi)}</td>
+      <td>${esc(r.nikaya)}</td>
+      <td class="program-cell">${esc(r.prog)}</td>
+      <td>${esc(r.miti)}</td>
+      <td>${esc(r.kaifi)}</td>
+      <td class="actions-cell no-print">${currentRole==='admin' ? `<button class="act-btn act-edit" onclick="openEditModal(${r.id})" title="सम्पादन">✏️</button>` : ''}${currentRole==='admin' ? `<button class="act-btn act-del" onclick="confirmDelete(${r.id})" title="मेटाउनुहोस्">🗑️</button>` : ''}</td>
+    </tr>`).join('');
+  renderPagination(total, totalPages);
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function renderPagination(total, totalPages) {
+  const info = document.getElementById('pageInfo');
+  const btns = document.getElementById('pageBtns');
   const start = (currentPage-1)*perPage+1;
   const end = Math.min(currentPage*perPage, total);
-
-  document.getElementById('pageInfo').textContent = `${start}–${end} / ${total} रेकर्ड`;
-
-  const btns = document.getElementById('pageBtns');
-  btns.innerHTML = '';
-
-  const addBtn = (label, page, disabled) => {
-    const b = document.createElement('button');
-    b.className = 'page-btn' + (page === currentPage ? ' active' : '');
-    b.textContent = label;
-    b.disabled = disabled;
-    b.onclick = () => { currentPage = page; renderTable(); };
-    btns.appendChild(b);
-  };
-
-  addBtn('«', 1, currentPage===1);
-  addBtn('‹', currentPage-1, currentPage===1);
-
-  let s = Math.max(1, currentPage-2), e = Math.min(pages, currentPage+2);
-  if (currentPage <= 3) e = Math.min(5, pages);
-  if (currentPage >= pages-2) s = Math.max(1, pages-4);
-
-  for (let p = s; p <= e; p++) addBtn(p, p, false);
-
-  addBtn('›', currentPage+1, currentPage===pages);
-  addBtn('»', pages, currentPage===pages);
+  info.textContent = `${start}–${end} / ${total} रेकर्ड`;
+  let html = `<button class="page-btn" onclick="gotoPage(${currentPage-1})" ${currentPage<=1?'disabled':''}>‹</button>`;
+  let s = Math.max(1, currentPage-2), e = Math.min(totalPages, currentPage+2);
+  if (s > 1) html += `<button class="page-btn" onclick="gotoPage(1)">1</button>${s>2?'<span style="padding:0 4px">…</span>':''}`;
+  for (let p=s; p<=e; p++) html += `<button class="page-btn${p===currentPage?' active':''}" onclick="gotoPage(${p})">${p}</button>`;
+  if (e < totalPages) html += `${e<totalPages-1?'<span style="padding:0 4px">…</span>':''}<button class="page-btn" onclick="gotoPage(${totalPages})">${totalPages}</button>`;
+  html += `<button class="page-btn" onclick="gotoPage(${currentPage+1})" ${currentPage>=totalPages?'disabled':''}>›</button>`;
+  btns.innerHTML = html;
 }
 
-// ====================== CRUD ======================
+function gotoPage(p) { currentPage = p; renderTable(); }
+
+// ====================== ADD/EDIT RECORD ======================
 function openAddModal() {
+  if (currentRole !== 'admin' && currentRole !== 'head') return;
   editingId = null;
-  document.getElementById('formModalTitle').textContent = '➕ नयाँ रेकर्ड थप्नुहोस्';
-  ['naam','pad','desh','awadhi','nikaya','prog','miti','kaifi'].forEach(f => {
-    const el = document.getElementById('f_'+f);
-    el.value = '';
-    el.classList.remove('error');
-  });
+  document.getElementById('formModalTitle').textContent = '📝 नयाँ रेकर्ड थप्नुहोस्';
+  ['naam','pad','awadhi','nikaya','prog','miti','kaifi'].forEach(id => document.getElementById('f_'+id).value = '');
+  document.getElementById('f_desh').value = '';
   document.querySelectorAll('.error-msg').forEach(e => e.classList.remove('show'));
   document.getElementById('formModal').classList.add('active');
 }
 
 function openEditModal(id) {
-  const rec = records.find(r => r.id === id);
-  if (!rec) return;
+  if (currentRole !== 'admin' && currentRole !== 'head') return;
   editingId = id;
+  const rec = records.find(r => r.id === id);
   document.getElementById('formModalTitle').textContent = '✏️ रेकर्ड सम्पादन';
   document.getElementById('f_naam').value = rec.naam || '';
   document.getElementById('f_pad').value = rec.pad || '';
@@ -1236,30 +1002,18 @@ function closeFormModal() {
 }
 
 function saveRecord() {
-  // Validation
   const fields = [
-    {id:'naam', msg:'e_naam', label:'नाम थर'},
-    {id:'pad', msg:'e_pad', label:'पद'},
-    {id:'desh', msg:'e_desh', label:'देश'},
-    {id:'awadhi', msg:'e_awadhi', label:'अवधि'},
-    {id:'nikaya', msg:'e_nikaya', label:'निकाय'},
-    {id:'prog', msg:'e_prog', label:'कार्यक्रम'},
+    {id:'naam',msg:'e_naam'},{id:'pad',msg:'e_pad'},{id:'desh',msg:'e_desh'},
+    {id:'awadhi',msg:'e_awadhi'},{id:'nikaya',msg:'e_nikaya'},{id:'prog',msg:'e_prog'}
   ];
   let valid = true;
   fields.forEach(f => {
     const el = document.getElementById('f_'+f.id);
     const em = document.getElementById(f.msg);
-    if (!el.value.trim()) {
-      el.classList.add('error');
-      em.classList.add('show');
-      valid = false;
-    } else {
-      el.classList.remove('error');
-      em.classList.remove('show');
-    }
+    if (!el.value.trim()) { el.classList.add('error'); em.classList.add('show'); valid = false; }
+    else { el.classList.remove('error'); em.classList.remove('show'); }
   });
   if (!valid) { showToast('कृपया आवश्यक फिल्डहरू भर्नुहोस्', 'error'); return; }
-
   const data = {
     naam: document.getElementById('f_naam').value.trim(),
     pad: document.getElementById('f_pad').value.trim(),
@@ -1270,7 +1024,6 @@ function saveRecord() {
     miti: document.getElementById('f_miti').value.trim(),
     kaifi: document.getElementById('f_kaifi').value.trim(),
   };
-
   if (editingId) {
     const idx = records.findIndex(r => r.id === editingId);
     records[idx] = {...records[idx], ...data};
@@ -1279,29 +1032,23 @@ function saveRecord() {
     records.push({id: nextId++, ...data});
     showToast('नयाँ रेकर्ड सफलतापूर्वक थपियो!', 'success');
   }
-
-  saveToStorage();
-  closeFormModal();
-  applyFilters();
+  saveToStorage(); closeFormModal(); applyFilters();
 }
 
 // ====================== DELETE ======================
 function confirmDelete(id) {
+  if (currentRole !== 'admin') return;
   const rec = records.find(r => r.id === id);
   document.getElementById('confirmTitle').textContent = '⚠️ मेटाउने पुष्टि';
   document.getElementById('confirmIcon').textContent = '🗑️';
   document.getElementById('confirmMsg').textContent = `"${rec.naam}" को रेकर्ड मेटाउने?`;
   document.getElementById('adminPassCheck').style.display = 'none';
-  confirmCallback = () => {
-    records = records.filter(r => r.id !== id);
-    saveToStorage();
-    applyFilters();
-    showToast('रेकर्ड मेटाइयो!', 'info');
-  };
+  confirmCallback = () => { records = records.filter(r => r.id !== id); saveToStorage(); applyFilters(); showToast('रेकर्ड मेटाइयो!', 'info'); };
   document.getElementById('confirmModal').classList.add('active');
 }
 
 function confirmDeleteAll() {
+  if (currentRole !== 'admin') return;
   document.getElementById('confirmTitle').textContent = '⚠️ सबै मेटाउने पुष्टि';
   document.getElementById('confirmIcon').textContent = '☢️';
   document.getElementById('confirmMsg').textContent = `सबै ${records.length} रेकर्ड स्थायी रूपमा मेटाइनेछ। Admin पासवर्ड प्रविष्ट गर्नुहोस्।`;
@@ -1310,40 +1057,23 @@ function confirmDeleteAll() {
   document.getElementById('adminPassErr').classList.remove('show');
   confirmCallback = () => {
     const pass = document.getElementById('adminPassInput').value;
-    if (pass !== PASSWORDS.admin) {
-      document.getElementById('adminPassErr').classList.add('show');
-      return false;
-    }
-    records = [];
-    nextId = 1;
-    saveToStorage();
-    applyFilters();
-    showToast('सबै रेकर्ड मेटाइयो!', 'info');
-    return true;
+    if (pass !== loadAdminPass()) { document.getElementById('adminPassErr').classList.add('show'); return false; }
+    records = []; nextId = 1; saveToStorage(); applyFilters(); showToast('सबै रेकर्ड मेटाइयो!', 'info'); return true;
   };
   document.getElementById('confirmModal').classList.add('active');
 }
 
-function confirmAction() {
-  const result = confirmCallback && confirmCallback();
-  if (result !== false) closeConfirm();
-}
-
-function closeConfirm() {
-  document.getElementById('confirmModal').classList.remove('active');
-  confirmCallback = null;
-}
+function confirmAction() { const result = confirmCallback && confirmCallback(); if (result !== false) closeConfirm(); }
+function closeConfirm() { document.getElementById('confirmModal').classList.remove('active'); confirmCallback = null; }
 
 // ====================== PRINT ======================
-function printReport() {
-  window.print();
-}
+function printReport() { window.print(); }
 
 // ====================== EXPORT ======================
 function exportExcel() {
   const data = [
     ['क्र.सं.','नाम थर','पद','देश','अवधि','हाल कार्यरत निकाय','कार्यक्रम','निर्णय मिति','कैफियत'],
-    ...records.map((r,i) => [i+1, r.naam, r.pad, r.desh, r.awadhi, r.nikaya, r.prog, r.miti, r.kaifi])
+    ...records.map((r,i) => [i+1,r.naam,r.pad,r.desh,r.awadhi,r.nikaya,r.prog,r.miti,r.kaifi])
   ];
   const ws = XLSX.utils.aoa_to_sheet(data);
   ws['!cols'] = [{wch:6},{wch:25},{wch:20},{wch:20},{wch:25},{wch:35},{wch:50},{wch:15},{wch:20}];
@@ -1356,7 +1086,7 @@ function exportExcel() {
 function exportCSV() {
   const rows = [
     ['क्र.सं.','नाम थर','पद','देश','अवधि','हाल कार्यरत निकाय','कार्यक्रम','निर्णय मिति','कैफियत'],
-    ...records.map((r,i) => [i+1, r.naam, r.pad, r.desh, r.awadhi, r.nikaya, r.prog, r.miti, r.kaifi])
+    ...records.map((r,i) => [i+1,r.naam,r.pad,r.desh,r.awadhi,r.nikaya,r.prog,r.miti,r.kaifi])
   ];
   const csv = rows.map(row => row.map(c => `"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
   const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
@@ -1368,16 +1098,8 @@ function exportCSV() {
 }
 
 // ====================== IMPORT ======================
-function handleDrop(e) {
-  e.preventDefault();
-  const file = e.dataTransfer.files[0];
-  if (file) processImportFile(file);
-}
-
-function handleFileImport(e) {
-  const file = e.target.files[0];
-  if (file) processImportFile(file);
-}
+function handleDrop(e) { e.preventDefault(); const file = e.dataTransfer.files[0]; if (file) processImportFile(file); }
+function handleFileImport(e) { const file = e.target.files[0]; if (file) processImportFile(file); }
 
 function processImportFile(file) {
   const ext = file.name.split('.').pop().toLowerCase();
@@ -1389,25 +1111,13 @@ function processImportFile(file) {
       const ws = wb.Sheets[wb.SheetNames[0]];
       data = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
     } else {
-      // CSV
-      const text = e.target.result;
-      data = text.split('\n').map(r => r.split(',').map(c => c.replace(/^"|"$/g,'').replace(/""/g,'"')));
+      data = e.target.result.split('\n').map(r => r.split(',').map(c => c.replace(/^"|"$/g,'').replace(/""/g,'"')));
     }
-    // Try to parse - assume header row
-    const header = data[0];
     const rows = data.slice(1).filter(r => r.some(c => c));
-    const imported = rows.map((r, i) => ({
-      id: nextId++,
-      naam: r[1] || r[0] || '',
-      pad: r[2] || '',
-      desh: r[3] || '',
-      awadhi: r[4] || '',
-      nikaya: r[5] || '',
-      prog: r[6] || '',
-      miti: r[7] || '',
-      kaifi: r[8] || '',
+    const imported = rows.map((r,i) => ({
+      id: nextId++, naam: r[1]||r[0]||'', pad: r[2]||'', desh: r[3]||'',
+      awadhi: r[4]||'', nikaya: r[5]||'', prog: r[6]||'', miti: r[7]||'', kaifi: r[8]||''
     })).filter(r => r.naam);
-
     document.getElementById('importPreview').innerHTML = `
       <div style="padding:12px;background:var(--gl);border-radius:8px;border:1px solid var(--border)">
         <div style="font-weight:700;color:var(--g1);margin-bottom:8px;">✅ ${imported.length} रेकर्ड पाइयो</div>
@@ -1423,15 +1133,13 @@ function processImportFile(file) {
 
 function confirmImport(data) {
   if (typeof data === 'string') data = JSON.parse(data);
-  records.push(...data);
-  saveToStorage(); applyFilters();
+  records.push(...data); saveToStorage(); applyFilters();
   document.getElementById('importModal').classList.remove('active');
   showToast(`${data.length} रेकर्ड सफलतापूर्वक आयात भयो!`, 'success');
 }
 function replaceImport(data) {
   if (typeof data === 'string') data = JSON.parse(data);
-  records = data;
-  nextId = data.reduce((m,r) => Math.max(m, r.id||0), 0) + 1;
+  records = data; nextId = data.reduce((m,r) => Math.max(m, r.id||0), 0) + 1;
   saveToStorage(); applyFilters();
   document.getElementById('importModal').classList.remove('active');
   showToast(`${data.length} रेकर्ड आयात भयो (पुराना मेटाइयो)!`, 'success');
@@ -1447,11 +1155,9 @@ function showToast(msg, type='success') {
   setTimeout(() => t.remove(), 3500);
 }
 
-// ====================== PRINT: Add page number support ======================
+// ====================== PRINT HEADER ======================
 window.addEventListener('beforeprint', () => {
-  // Add print-only header
   const phdr = document.createElement('div');
-  phdr.className = 'print-header';
   phdr.id = 'ph';
   phdr.style.cssText = 'text-align:center;padding:10px 0 20px;border-bottom:2px solid #333;margin-bottom:16px;';
   phdr.innerHTML = `<div style="font-size:18px;font-weight:800;">वन तथा वातावरण मन्त्रालय सिंहदरबार, काठमाडौं</div>
@@ -1459,14 +1165,20 @@ window.addEventListener('beforeprint', () => {
 <div style="font-size:12px;margin-top:4px;">जम्मा रेकर्ड: ${records.length}</div>`;
   document.body.insertBefore(phdr, document.body.firstChild);
 });
-window.addEventListener('afterprint', () => {
-  const ph = document.getElementById('ph');
-  if (ph) ph.remove();
-});
+window.addEventListener('afterprint', () => { const ph=document.getElementById('ph'); if(ph) ph.remove(); });
 
-// ====================== START ======================
-// Show login on load (already visible via CSS display:flex)
-// On page load, if we had saved role, auto-login? No – always require login.
+// On page load, init admin password from storage
+ADMIN_PASSWORD = loadAdminPass();
+
+// Seed default Head account if not already present
+(function seedDefaultUsers() {
+  const users = loadUsers();
+  const headExists = users.find(u => u.username === 'head' && u.role === 'head');
+  if (!headExists) {
+    users.push({ username: 'head', password: 'Head@2026#', role: 'head' });
+    saveUsers(users);
+  }
+})();
 </script>
 </body>
 </html>
