@@ -121,11 +121,15 @@
   /* ===== TABLE ===== */
   .records-table { width:100%; border-collapse:collapse; font-size:13px; }
   .records-table thead th { background:linear-gradient(135deg,var(--g1),var(--g2)); color:white; padding:13px 10px; text-align:center; font-weight:700; white-space:nowrap; position:sticky; top:0; z-index:5; border-right:1px solid rgba(255,255,255,0.15); font-size:13px; }
+  .records-table thead th.sortable { cursor:pointer; user-select:none; }
+  .records-table thead th.sortable:hover { background:linear-gradient(135deg,var(--g2),var(--g3)); }
+  .records-table thead th .sort-icon { margin-left:4px; font-size:11px; opacity:0.6; }
+  .records-table thead th.sort-asc .sort-icon, .records-table thead th.sort-desc .sort-icon { opacity:1; color:#ffd700; }
   .records-table thead th:last-child { border-right:none; }
   .records-table tbody tr { border-bottom:1px solid #e0f0e0; transition:background 0.15s; }
   .records-table tbody tr:nth-child(even) { background:#f5fbf5; }
   .records-table tbody tr:hover { background:#d4f0d4 !important; }
-  .records-table tbody td { padding:10px; vertical-align:top; border-right:1px solid #e8f4e8; color:var(--text); line-height:1.4; }
+  .records-table tbody td { padding:10px; vertical-align:top; border-right:1px solid #e8f4e8; color:#111; font-weight:700; line-height:1.4; }
   .records-table tbody td.sn { text-align:center; font-weight:700; color:var(--g2); min-width:45px; }
   .records-table tbody td.name-cell { font-weight:600; min-width:180px; color:var(--g1); }
   .records-table tbody td.program-cell { min-width:320px; max-width:420px; }
@@ -195,6 +199,7 @@
     .main-layout { min-height:auto; }
     body { background:white; }
     .records-table thead th { background:#1a6b1a !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .records-table tbody td { color:#111 !important; font-weight:700 !important; border:1px solid #999 !important; }
     .records-table tbody tr:nth-child(even) { background:#f5fbf5 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
     .count-panel { display:none !important; }
     .modal-overlay { display:none !important; }
@@ -499,12 +504,13 @@
   <div class="toolbar-group">
     <button class="btn btn-secondary" onclick="toggleCountPanel()">📊 मनोनयन गणना</button>
     <button class="btn btn-secondary" onclick="printReport()">🖨️ सम्पूर्ण रिपोर्ट प्रिन्ट</button>
+    <button class="btn btn-secondary" onclick="printUniqueEmployees()">🖨️ एक पटक मनोनित प्रिन्ट</button>
   </div>
   <div class="toolbar-sep"></div>
   <div class="toolbar-group">
     <button class="btn btn-gold" onclick="exportExcel()">📤 Excel निर्यात</button>
     <button class="btn btn-gold" onclick="exportCSV()">📤 CSV निर्यात</button>
-    <button class="btn btn-secondary" onclick="document.getElementById('importModal').classList.add('active')">📥 आयात</button>
+    <button class="btn btn-secondary" id="importBtn" onclick="document.getElementById('importModal').classList.add('active')">📥 आयात</button>
   </div>
   <div class="toolbar-sep"></div>
   <div class="toolbar-group">
@@ -538,9 +544,15 @@
     <table class="records-table" id="recordsTable">
       <thead>
         <tr>
-          <th>क्र.सं.</th><th>नाम थर</th><th>पद</th><th>देश</th>
-          <th>अवधि</th><th>हाल कार्यरत निकाय</th><th>कार्यक्रम</th>
-          <th>निर्णय मिति</th><th>कैफियत</th>
+          <th>क्र.सं.</th>
+          <th class="sortable" onclick="sortTable('naam')">नाम थर <span class="sort-icon">⇅</span></th>
+          <th class="sortable" onclick="sortTable('pad')">पद <span class="sort-icon">⇅</span></th>
+          <th class="sortable" onclick="sortTable('desh')">देश <span class="sort-icon">⇅</span></th>
+          <th class="sortable" onclick="sortTable('awadhi')">अवधि <span class="sort-icon">⇅</span></th>
+          <th class="sortable" onclick="sortTable('nikaya')">हाल कार्यरत निकाय <span class="sort-icon">⇅</span></th>
+          <th>कार्यक्रम</th>
+          <th class="sortable" onclick="sortTable('miti')">निर्णय मिति <span class="sort-icon">⇅</span></th>
+          <th>कैफियत</th>
           <th class="no-print" id="actionsHeader">कार्यहरू</th>
         </tr>
       </thead>
@@ -576,6 +588,8 @@ let editingId = null;
 let confirmCallback = null;
 let currentPage = 1;
 let perPage = 25;
+let sortCol = null;
+let sortDir = 1; // 1=asc, -1=desc
 
 // ====================== USER MANAGEMENT ======================
 function loadUsers() {
@@ -665,6 +679,9 @@ function updatePermissions() {
   document.getElementById('deleteAllBtn').style.display = isAdmin ? '' : 'none';
   document.getElementById('usersBtn').style.display = isAdmin ? '' : 'none';
   document.getElementById('addYearBtn').style.display = isAdmin ? '' : 'none';
+  // Hide import button for non-admin (Head) users
+  const importBtn = document.getElementById('importBtn');
+  if (importBtn) importBtn.style.display = isAdmin ? '' : 'none';
   // Hide actions column header for non-admin
   const actHdr = document.getElementById('actionsHeader');
   if (actHdr) actHdr.style.display = isAdmin ? '' : 'none';
@@ -960,6 +977,37 @@ function updateFilterOptions() {
   });
 }
 
+// ====================== SORTING ======================
+function sortTable(col) {
+  if (sortCol === col) {
+    sortDir *= -1;
+  } else {
+    sortCol = col;
+    sortDir = 1;
+  }
+  // Update header classes
+  document.querySelectorAll('.records-table thead th').forEach(th => {
+    th.classList.remove('sort-asc', 'sort-desc');
+    const ico = th.querySelector('.sort-icon');
+    if (ico) ico.textContent = '⇅';
+  });
+  const colMap = {naam:1, pad:2, desh:3, awadhi:4, nikaya:5, miti:7};
+  const thIdx = colMap[col];
+  const ths = document.querySelectorAll('.records-table thead th');
+  if (ths[thIdx]) {
+    ths[thIdx].classList.add(sortDir === 1 ? 'sort-asc' : 'sort-desc');
+    const ico = ths[thIdx].querySelector('.sort-icon');
+    if (ico) ico.textContent = sortDir === 1 ? '▲' : '▼';
+  }
+  filteredRecords.sort((a, b) => {
+    const av = (a[col] || '').toString().toLowerCase();
+    const bv = (b[col] || '').toString().toLowerCase();
+    return av < bv ? -sortDir : av > bv ? sortDir : 0;
+  });
+  currentPage = 1;
+  renderTable();
+}
+
 function clearFilters() {
   document.getElementById('searchName').value = '';
   document.getElementById('filterCountry').value = '';
@@ -1177,7 +1225,119 @@ function confirmAction() { const result = confirmCallback && confirmCallback(); 
 function closeConfirm() { document.getElementById('confirmModal').classList.remove('active'); confirmCallback = null; }
 
 // ====================== PRINT ======================
-function printReport() { window.print(); }
+function printReport() {
+  const year = document.getElementById('yearField').value;
+  const printWin = window.open('', '_blank', 'width=1100,height=800');
+
+  const rows = filteredRecords.map(function(r, i) {
+    return '<tr>' +
+      '<td class="sn">' + (i+1) + '</td>' +
+      '<td><strong>' + (r.naam||'') + '</strong>' + (filteredRecords.filter(function(x){return x.naam===r.naam;}).length > 1 ? '<br><span style="font-size:10px;background:#fff3e0;border:1px solid #ffa500;color:#b86b00;border-radius:10px;padding:1px 7px;">बहु मनोनयन</span>' : '') + '</td>' +
+      '<td>' + (r.pad||'') + '</td>' +
+      '<td>' + (r.desh||'') + '</td>' +
+      '<td>' + (r.awadhi||'') + '</td>' +
+      '<td>' + (r.nikaya||'') + '</td>' +
+      '<td>' + (r.prog||'') + '</td>' +
+      '<td>' + (r.miti||'') + '</td>' +
+      '<td>' + (r.kaifi||'') + '</td>' +
+      '</tr>';
+  }).join('');
+
+  const html = '<!DOCTYPE html><html lang="ne"><head>' +
+    '<meta charset="UTF-8">' +
+    '<title>\u0938\u092e\u094d\u092a\u0942\u0930\u094d\u0923 \u0935\u093f\u0935\u0930\u0923</title>' +
+    '<style>' +
+    'body{font-family:Mukta,sans-serif;margin:0;padding:20px;background:white;}' +
+    '.ph{text-align:center;padding-bottom:14px;border-bottom:2px solid #333;margin-bottom:16px;}' +
+    '.ph h2{font-size:18px;font-weight:800;margin:0 0 2px;}' +
+    '.ph h3{font-size:15px;font-weight:700;margin:0 0 2px;color:#222;}' +
+    '.ph p{font-size:13px;margin:4px 0;color:#555;}' +
+    'table{width:100%;border-collapse:collapse;font-size:12px;}' +
+    'thead tr{-webkit-print-color-adjust:exact;print-color-adjust:exact;}' +
+    'thead th{background:#1a6b1a !important;color:#ffffff !important;padding:10px 8px;text-align:center;font-weight:800;font-size:13px;border:2px solid #145214;-webkit-print-color-adjust:exact;print-color-adjust:exact;}' +
+    'tbody td{padding:8px 7px;border:1px solid #666;vertical-align:top;line-height:1.5;font-weight:700;color:#111;font-size:12px;}' +
+    'tbody tr:nth-child(even){background:#f0faf0 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}' +
+    '.sn{text-align:center;font-weight:800;color:#1a6b1a;}' +
+    '@page{margin:1.5cm;size:A4 landscape;}' +
+    '</style></head><body>' +
+    '<div class="ph">' +
+    '<h2>\u0928\u0947\u092a\u093e\u0932 \u0938\u0930\u0915\u093e\u0930</h2>' +
+    '<h3>\u0935\u0928 \u0924\u0925\u093e \u0935\u093e\u0924\u093e\u0935\u0930\u0923 \u092e\u0928\u094d\u0924\u094d\u0930\u093e\u0932\u092f</h3>' +
+    '<h3>\u0938\u093f\u0902\u0939\u0926\u0930\u092c\u093e\u0930, \u0915\u093e\u0920\u092e\u093e\u0921\u094c\u0902</h3>' +
+    '<p>\u0935\u093f\u0926\u0947\u0936 \u092d\u094d\u0930\u092e\u0923 \u091c\u093e\u0928\u0947 \u092a\u0926\u093e\u0927\u093f\u0915\u093e\u0930\u0940 \u090f\u0935\u0902 \u0915\u0930\u094d\u092e\u091a\u093e\u0930\u0940\u0939\u0930\u0941\u0915\u094b \u0935\u093f\u0935\u0930\u0923 (' + year + ')</p>' +
+    '<p>\u091c\u092e\u094d\u092e\u093e \u0930\u0947\u0915\u0930\u094d\u0921: <strong>' + filteredRecords.length + '</strong></p>' +
+    '</div>' +
+    '<table><thead><tr>' +
+    '<th>\u0915\u094d\u0930.\u0938\u0902.</th><th>\u0928\u093e\u092e \u0925\u0930</th><th>\u092a\u0926</th><th>\u0926\u0947\u0936</th>' +
+    '<th>\u0905\u0935\u0927\u093f</th><th>\u0939\u093e\u0932 \u0915\u093e\u0930\u094d\u092f\u0930\u0924 \u0928\u093f\u0915\u093e\u092f</th><th>\u0915\u093e\u0930\u094d\u092f\u0915\u094d\u0930\u092e</th>' +
+    '<th>\u0928\u093f\u0930\u094d\u0923\u092f \u092e\u093f\u0924\u093f</th><th>\u0915\u0948\u092b\u093f\u092f\u0924</th>' +
+    '</tr></thead><tbody>' + rows + '</tbody></table>' +
+    '<script>window.onload=function(){window.print();}<' + '/script>' +
+    '</body></html>';
+
+  printWin.document.write(html);
+  printWin.document.close();
+}
+
+function printUniqueEmployees() {
+  // Find employees nominated only once
+  const counts = {};
+  records.forEach(function(r) { counts[r.naam] = (counts[r.naam] || 0) + 1; });
+  const uniqueRecs = records.filter(function(r) { return counts[r.naam] === 1; });
+
+  const year = document.getElementById('yearField').value;
+  const printWin = window.open('', '_blank', 'width=1100,height=800');
+
+  const rows = uniqueRecs.map(function(r, i) {
+    return '<tr>' +
+      '<td class="sn">' + (i+1) + '</td>' +
+      '<td>' + (r.naam||'') + '</td>' +
+      '<td>' + (r.pad||'') + '</td>' +
+      '<td>' + (r.desh||'') + '</td>' +
+      '<td>' + (r.awadhi||'') + '</td>' +
+      '<td>' + (r.nikaya||'') + '</td>' +
+      '<td>' + (r.prog||'') + '</td>' +
+      '<td>' + (r.miti||'') + '</td>' +
+      '<td>' + (r.kaifi||'') + '</td>' +
+      '</tr>';
+  }).join('');
+
+  const html = '<!DOCTYPE html><html lang="ne"><head>' +
+    '<meta charset="UTF-8">' +
+    '<title>\u090f\u0915 \u092a\u091f\u0915 \u092e\u093e\u0924\u094d\u0930 \u092e\u0928\u094b\u0928\u093f\u0924 \u0915\u0930\u094d\u092e\u091a\u093e\u0930\u0940</title>' +
+    '<style>' +
+    'body{font-family:Mukta,sans-serif;margin:0;padding:20px;background:white;}' +
+    '.ph{text-align:center;padding-bottom:14px;border-bottom:2px solid #333;margin-bottom:16px;}' +
+    '.ph h2{font-size:18px;font-weight:800;margin:0 0 2px;}' +
+    '.ph h3{font-size:15px;font-weight:700;margin:0 0 2px;color:#222;}' +
+    '.ph p{font-size:13px;margin:4px 0;color:#555;}' +
+    'table{width:100%;border-collapse:collapse;font-size:12px;}' +
+    'thead tr{-webkit-print-color-adjust:exact;print-color-adjust:exact;}' +
+    'thead th{background:#1a6b1a !important;color:#ffffff !important;padding:10px 8px;text-align:center;font-weight:800;font-size:13px;border:2px solid #145214;-webkit-print-color-adjust:exact;print-color-adjust:exact;}' +
+    'tbody td{padding:8px 7px;border:1px solid #666;vertical-align:top;line-height:1.5;font-weight:700;color:#111;font-size:12px;}' +
+    'tbody tr:nth-child(even){background:#f0faf0 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}' +
+    '.sn{text-align:center;font-weight:800;color:#1a6b1a;}' +
+    '@page{margin:1.5cm;size:A4 landscape;}' +
+    '</style></head><body>' +
+    '<div class="ph">' +
+    '<h2>\u0928\u0947\u092a\u093e\u0932 \u0938\u0930\u0915\u093e\u0930</h2>' +
+    '<h3>\u0935\u0928 \u0924\u0925\u093e \u0935\u093e\u0924\u093e\u0935\u0930\u0923 \u092e\u0928\u094d\u0924\u094d\u0930\u093e\u0932\u092f</h3>' +
+    '<h3>\u0938\u093f\u0902\u0939\u0926\u0930\u092c\u093e\u0930, \u0915\u093e\u0920\u092e\u093e\u0921\u094c\u0902</h3>' +
+    '<p>\u090f\u0915 \u092a\u091f\u0915 \u092e\u093e\u0924\u094d\u0930 \u092e\u0928\u094b\u0928\u093f\u0924 \u092a\u0926\u093e\u0927\u093f\u0915\u093e\u0930\u0940 \u090f\u0935\u0902 \u0915\u0930\u094d\u092e\u091a\u093e\u0930\u0940\u0939\u0930\u0941\u0915\u094b \u0935\u093f\u0935\u0930\u0923 (' + year + ')</p>' +
+    '<p>\u091c\u092e\u094d\u092e\u093e \u090f\u0915 \u092a\u091f\u0915 \u092e\u0928\u094b\u0928\u093f\u0924: <strong>' + uniqueRecs.length + '</strong> \u091c\u0928\u093e</p>' +
+    '</div>' +
+    '<table><thead><tr>' +
+    '<th>\u0915\u094d\u0930.\u0938\u0902.</th><th>\u0928\u093e\u092e \u0925\u0930</th><th>\u092a\u0926</th><th>\u0926\u0947\u0936</th>' +
+    '<th>\u0905\u0935\u0927\u093f</th><th>\u0939\u093e\u0932 \u0915\u093e\u0930\u094d\u092f\u0930\u0924 \u0928\u093f\u0915\u093e\u092f</th><th>\u0915\u093e\u0930\u094d\u092f\u0915\u094d\u0930\u092e</th>' +
+    '<th>\u0928\u093f\u0930\u094d\u0923\u092f \u092e\u093f\u0924\u093f</th><th>\u0915\u0948\u092b\u093f\u092f\u0924</th>' +
+    '</tr></thead><tbody>' + rows + '</tbody></table>' +
+    '<script>window.onload=function(){window.print();}<' + '/script>' +
+    '</body></html>';
+
+  printWin.document.write(html);
+  printWin.document.close();
+}
+
 
 // ====================== EXPORT ======================
 function exportExcel() {
@@ -1271,12 +1431,15 @@ window.addEventListener('beforeprint', () => {
   const phdr = document.createElement('div');
   phdr.id = 'ph';
   phdr.style.cssText = 'text-align:center;padding:10px 0 20px;border-bottom:2px solid #333;margin-bottom:16px;';
-  phdr.innerHTML = `<div style="font-size:18px;font-weight:800;">वन तथा वातावरण मन्त्रालय सिंहदरबार, काठमाडौं</div>
-<div style="font-size:14px;margin-top:4px;">विदेश भ्रमण जाने पदाधिकारी एवं कर्मचारीहरुको विवरण (${document.getElementById('yearField').value})</div>
-<div style="font-size:12px;margin-top:4px;">जम्मा रेकर्ड: ${records.length}</div>`;
+  phdr.innerHTML = '<div style="font-size:18px;font-weight:800;">नेपाल सरकार</div>' +
+    '<div style="font-size:15px;font-weight:700;margin-top:2px;">वन तथा वातावरण मन्त्रालय</div>' +
+    '<div style="font-size:15px;font-weight:700;margin-top:2px;">सिंहदरबार, काठमाडौं</div>' +
+    '<div style="font-size:13px;margin-top:6px;color:#555;">विदेश भ्रमण जाने पदाधिकारी एवं कर्मचारीहरुको विवरण (' + document.getElementById('yearField').value + ')</div>' +
+    '<div style="font-size:12px;margin-top:4px;color:#555;">जम्मा रेकर्ड: ' + records.length + '</div>';
   document.body.insertBefore(phdr, document.body.firstChild);
 });
 window.addEventListener('afterprint', () => { const ph=document.getElementById('ph'); if(ph) ph.remove(); });
+
 
 // Seed default Head account and migrate any plaintext passwords to MD5
 (function seedDefaultUsers() {
