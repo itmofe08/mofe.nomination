@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>विदेश भ्रमण व्यवस्थापन प्रणाली</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Mukta:wght@300;400;500;600;700;800&family=Tiro+Devanagari+Hindi&display=swap');
   :root {
@@ -231,7 +232,6 @@
       <div class="login-role-tabs">
         <button class="role-tab active" onclick="selectRole('admin',this)">👑 Admin</button>
         <button class="role-tab" onclick="selectRole('head',this)">📋 Head</button>
-        <button class="role-tab" onclick="selectRole('user',this)">👤 User</button>
       </div>
       <div class="form-group" id="usernameGroup" style="display:none;">
         <label class="form-label">युजरनेम <span>*</span></label>
@@ -380,7 +380,6 @@
             <label class="form-label">भूमिका <span>*</span></label>
             <select class="form-select" id="nu_role">
               <option value="head">📋 Head</option>
-              <option value="user">👤 User</option>
             </select>
           </div>
         </div>
@@ -442,7 +441,6 @@
         <label class="form-label">भूमिका</label>
         <select class="form-select" id="eu_role">
           <option value="head">📋 Head</option>
-          <option value="user">👤 User</option>
         </select>
       </div>
     </div>
@@ -557,7 +555,7 @@
 
 <script>
 // ====================== DATA ======================
-let ADMIN_PASSWORD = 'Mofe@2026#';
+let ADMIN_PASSWORD = '4f2b8f1e3a9c7d6e5b0a2f4c8e1d3a7b'; // MD5 hash (set at runtime)
 let currentRole = null;
 let currentUser = null; // for head/user logins
 let selectedRole = 'admin';
@@ -576,11 +574,14 @@ function saveUsers(users) {
   localStorage.setItem('appUsers', JSON.stringify(users));
 }
 function loadAdminPass() {
-  return localStorage.getItem('adminPassword') || ADMIN_PASSWORD;
+  // Returns stored MD5 hash, or MD5 of the default password
+  return localStorage.getItem('adminPassword') || md5('Mofe@2026#');
 }
 function saveAdminPass(p) {
-  localStorage.setItem('adminPassword', p);
-  ADMIN_PASSWORD = p;
+  // Always save as MD5 hash
+  const hashed = md5(p);
+  localStorage.setItem('adminPassword', hashed);
+  ADMIN_PASSWORD = hashed;
 }
 
 // ====================== AUTH ======================
@@ -589,16 +590,9 @@ function selectRole(role, el) {
   document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
   const ug = document.getElementById('usernameGroup');
-  const pg = document.getElementById('passGroup');
   document.getElementById('loginErr').classList.remove('show');
-  if (role === 'admin') {
-    ug.style.display = 'none';
-    pg.style.display = '';
-  } else {
-    // head and user both need username + password
-    ug.style.display = '';
-    pg.style.display = '';
-  }
+  // Both admin and head use password-only login
+  ug.style.display = 'none';
 }
 
 function togglePassVis(inputId, btnId) {
@@ -616,16 +610,15 @@ function doLogin() {
 
   if (selectedRole === 'admin') {
     const adminPass = loadAdminPass();
-    if (pass !== adminPass) { err.textContent = '❌ गलत Admin पासवर्ड!'; err.classList.add('show'); return; }
+    if (md5(pass) !== adminPass) { err.textContent = '❌ गलत Admin पासवर्ड!'; err.classList.add('show'); return; }
     currentRole = 'admin';
     currentUser = 'admin';
   } else {
-    // head or user: check username + password
-    if (!username) { err.textContent = '❌ युजरनेम आवश्यक छ!'; err.classList.add('show'); return; }
+    // head: password-only login, username is fixed as 'head'
     if (!pass) { err.textContent = '❌ पासवर्ड आवश्यक छ!'; err.classList.add('show'); return; }
     const users = loadUsers();
-    const found = users.find(u => u.username === username && u.password === pass && u.role === selectedRole);
-    if (!found) { err.textContent = '❌ गलत युजरनेम वा पासवर्ड!'; err.classList.add('show'); return; }
+    const found = users.find(u => u.username === 'head' && u.password === md5(pass) && u.role === 'head');
+    if (!found) { err.textContent = '❌ गलत Head पासवर्ड!'; err.classList.add('show'); return; }
     currentRole = found.role;
     currentUser = found.username;
   }
@@ -650,8 +643,8 @@ function doLogout() {
 }
 
 function updateRoleBadge() {
-  const labels = {admin:'👑 Admin', head:'📋 Head', user:'👤 User'};
-  const dotCls = {admin:'dot-admin', head:'dot-head', user:'dot-user'};
+  const labels = {admin:'👑 Admin', head:'📋 Head'};
+  const dotCls = {admin:'dot-admin', head:'dot-head'};
   const display = currentUser && currentUser !== 'admin' ? labels[currentRole] + ' (' + currentUser + ')' : labels[currentRole];
   document.getElementById('roleLabel').textContent = display;
   const dot = document.getElementById('roleDot');
@@ -703,7 +696,7 @@ function createUser() {
   if (!username || !password) { showToast('युजरनेम र पासवर्ड आवश्यक छ!', 'error'); return; }
   const users = loadUsers();
   if (users.find(u => u.username === username)) { showToast('यो युजरनेम पहिले नै छ!', 'error'); return; }
-  users.push({username, password, role});
+  users.push({username, password: md5(password), role});
   saveUsers(users);
   document.getElementById('nu_username').value = '';
   document.getElementById('nu_password').value = '';
@@ -739,7 +732,7 @@ function saveEditUser() {
   const users = loadUsers();
   users[idx].username = username;
   users[idx].role = role;
-  if (password) users[idx].password = password;
+  if (password) users[idx].password = md5(password);
   saveUsers(users);
   document.getElementById('editUserModal').classList.remove('active');
   renderUsersList();
@@ -751,7 +744,7 @@ function changeAdminPassword() {
   const newPass = document.getElementById('ap_new').value;
   const confirm2 = document.getElementById('ap_confirm').value;
   const adminPass = loadAdminPass();
-  if (current !== adminPass) { showToast('वर्तमान पासवर्ड गलत!', 'error'); return; }
+  if (md5(current) !== adminPass) { showToast('वर्तमान पासवर्ड गलत!', 'error'); return; }
   if (!newPass) { showToast('नयाँ पासवर्ड खाली हुन सक्दैन!', 'error'); return; }
   if (newPass !== confirm2) { showToast('नयाँ पासवर्डहरू मेल खाएनन्!', 'error'); return; }
   saveAdminPass(newPass);
@@ -982,8 +975,8 @@ function openAddModal() {
 
 function openEditModal(id) {
   if (currentRole !== 'admin' && currentRole !== 'head') return;
-  editingId = id;
   const rec = records.find(r => r.id === id);
+  editingId = id;
   document.getElementById('formModalTitle').textContent = '✏️ रेकर्ड सम्पादन';
   document.getElementById('f_naam').value = rec.naam || '';
   document.getElementById('f_pad').value = rec.pad || '';
@@ -1057,7 +1050,7 @@ function confirmDeleteAll() {
   document.getElementById('adminPassErr').classList.remove('show');
   confirmCallback = () => {
     const pass = document.getElementById('adminPassInput').value;
-    if (pass !== loadAdminPass()) { document.getElementById('adminPassErr').classList.add('show'); return false; }
+    if (md5(pass) !== loadAdminPass()) { document.getElementById('adminPassErr').classList.add('show'); return false; }
     records = []; nextId = 1; saveToStorage(); applyFilters(); showToast('सबै रेकर्ड मेटाइयो!', 'info'); return true;
   };
   document.getElementById('confirmModal').classList.add('active');
@@ -1167,15 +1160,25 @@ window.addEventListener('beforeprint', () => {
 });
 window.addEventListener('afterprint', () => { const ph=document.getElementById('ph'); if(ph) ph.remove(); });
 
-// On page load, init admin password from storage
+// On page load, init admin password hash from storage
 ADMIN_PASSWORD = loadAdminPass();
 
-// Seed default Head account if not already present
+// Seed default Head account and migrate any plaintext passwords to MD5
 (function seedDefaultUsers() {
-  const users = loadUsers();
+  let users = loadUsers();
+  // Migrate any plaintext passwords (MD5 hashes are always 32 hex chars)
+  let migrated = false;
+  users = users.map(u => {
+    if (u.password && u.password.length !== 32) {
+      migrated = true;
+      return {...u, password: md5(u.password)};
+    }
+    return u;
+  });
+  if (migrated) saveUsers(users);
   const headExists = users.find(u => u.username === 'head' && u.role === 'head');
   if (!headExists) {
-    users.push({ username: 'head', password: 'Head@2026#', role: 'head' });
+    users.push({ username: 'head', password: md5('Head@2026#'), role: 'head' });
     saveUsers(users);
   }
 })();
