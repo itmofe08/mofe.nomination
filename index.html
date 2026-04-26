@@ -274,27 +274,32 @@
       <div class="form-grid">
         <div class="form-group">
           <label class="form-label">नाम थर <span>*</span></label>
-          <input type="text" class="form-input" id="f_naam" placeholder="श्री/श्रीमती/डा. नाम थर">
+          <input type="text" class="form-input" id="f_naam" placeholder="श्री/श्रीमती/डा. नाम थर" list="dl_naam" autocomplete="off">
+          <datalist id="dl_naam"></datalist>
           <div class="error-msg" id="e_naam">यो फिल्ड आवश्यक छ</div>
         </div>
         <div class="form-group">
           <label class="form-label">पद <span>*</span></label>
-          <input type="text" class="form-input" id="f_pad" placeholder="पद लेख्नुहोस्">
+          <input type="text" class="form-input" id="f_pad" placeholder="पद लेख्नुहोस्" list="dl_pad" autocomplete="off">
+          <datalist id="dl_pad"></datalist>
           <div class="error-msg" id="e_pad">यो फिल्ड आवश्यक छ</div>
         </div>
         <div class="form-group">
           <label class="form-label">देश <span>*</span></label>
-          <select class="form-select" id="f_desh"><option value="">— देश छान्नुहोस् —</option></select>
+          <input type="text" class="form-input" id="f_desh" placeholder="देश खोज्नुहोस् वा टाइप गर्नुहोस्" list="dl_desh" autocomplete="off">
+          <datalist id="dl_desh"></datalist>
           <div class="error-msg" id="e_desh">देश छान्नुहोस्</div>
         </div>
         <div class="form-group">
           <label class="form-label">अवधि <span>*</span></label>
-          <input type="text" class="form-input" id="f_awadhi" placeholder="जस्तै: १ देखि ५ सेप्टेम्बर सम्म, २०२५">
+          <input type="text" class="form-input" id="f_awadhi" placeholder="जस्तै: १ देखि ५ सेप्टेम्बर सम्म, २०२५" list="dl_awadhi" autocomplete="off">
+          <datalist id="dl_awadhi"></datalist>
           <div class="error-msg" id="e_awadhi">यो फिल्ड आवश्यक छ</div>
         </div>
         <div class="form-group full">
           <label class="form-label">हाल कार्यरत निकाय <span>*</span></label>
-          <input type="text" class="form-input" id="f_nikaya" placeholder="कार्यालयको नाम">
+          <input type="text" class="form-input" id="f_nikaya" placeholder="कार्यालयको नाम" list="dl_nikaya" autocomplete="off">
+          <datalist id="dl_nikaya"></datalist>
           <div class="error-msg" id="e_nikaya">यो फिल्ड आवश्यक छ</div>
         </div>
         <div class="form-group full">
@@ -304,11 +309,13 @@
         </div>
         <div class="form-group">
           <label class="form-label">निर्णय मिति</label>
-          <input type="text" class="form-input" id="f_miti" placeholder="२०८२-०५-०५">
+          <input type="text" class="form-input" id="f_miti" placeholder="२०८२-०५-०५" list="dl_miti" autocomplete="off">
+          <datalist id="dl_miti"></datalist>
         </div>
         <div class="form-group">
           <label class="form-label">कैफियत</label>
-          <input type="text" class="form-input" id="f_kaifi" placeholder="(वैकल्पिक)">
+          <input type="text" class="form-input" id="f_kaifi" placeholder="(वैकल्पिक)" list="dl_kaifi" autocomplete="off">
+          <datalist id="dl_kaifi"></datalist>
         </div>
       </div>
     </div>
@@ -927,12 +934,12 @@ function saveToStorage() {
 }
 
 function populateCountryDropdowns() {
-  const sel = document.getElementById('f_desh');
-  WORLD_COUNTRIES.forEach(c => {
-    const o = document.createElement('option');
-    o.value = c; o.textContent = c;
-    sel.appendChild(o);
-  });
+  const dl = document.getElementById('dl_desh');
+  if (!dl) return;
+  // Merge WORLD_COUNTRIES with any countries already in records
+  const fromRecords = records.map(function(r){ return r.desh; }).filter(Boolean);
+  const all = [...new Set([...WORLD_COUNTRIES, ...fromRecords])].sort();
+  dl.innerHTML = all.map(function(c){ return '<option value="' + c.replace(/"/g,'&quot;') + '">'; }).join('');
 }
 
 // ====================== FILTERS ======================
@@ -1134,6 +1141,7 @@ function openAddModal() {
   ['naam','pad','awadhi','nikaya','prog','miti','kaifi'].forEach(id => document.getElementById('f_'+id).value = '');
   document.getElementById('f_desh').value = '';
   document.querySelectorAll('.error-msg').forEach(e => e.classList.remove('show'));
+  populateAutocomplete();
   document.getElementById('formModal').classList.add('active');
 }
 
@@ -1151,7 +1159,50 @@ function openEditModal(id) {
   document.getElementById('f_miti').value = rec.miti || '';
   document.getElementById('f_kaifi').value = rec.kaifi || '';
   document.querySelectorAll('.error-msg').forEach(e => e.classList.remove('show'));
+  populateAutocomplete();
   document.getElementById('formModal').classList.add('active');
+}
+
+function populateAutocomplete() {
+  // Populate datalists for all text fields
+  const fields = ['naam','pad','awadhi','nikaya','miti','kaifi'];
+  fields.forEach(function(field) {
+    const dl = document.getElementById('dl_' + field);
+    if (!dl) return;
+    const unique = [...new Set(records.map(function(r){ return r[field]; }).filter(Boolean))].sort();
+    dl.innerHTML = unique.map(function(v){ return '<option value="' + v.replace(/"/g,'&quot;') + '">'; }).join('');
+  });
+  // Refresh country datalist with any new entries from records
+  populateCountryDropdowns();
+
+  // For prog (textarea), show a dropdown suggestion list below it
+  const progEl = document.getElementById('f_prog');
+  let progDl = document.getElementById('dl_prog_custom');
+  if (!progDl) {
+    progDl = document.createElement('datalist');
+    progDl.id = 'dl_prog_custom';
+    progEl.setAttribute('list', 'dl_prog_custom');
+    progEl.setAttribute('autocomplete', 'off');
+    progEl.parentNode.insertBefore(progDl, progEl.nextSibling);
+  }
+  const uniqueProgs = [...new Set(records.map(function(r){ return r.prog; }).filter(Boolean))].sort();
+  progDl.innerHTML = uniqueProgs.map(function(v){ return '<option value="' + v.replace(/"/g,'&quot;') + '">'; }).join('');
+
+  // Smart name-based autofill: when naam matches a known employee, fill pad + nikaya
+  const naamEl = document.getElementById('f_naam');
+  naamEl.oninput = function() {
+    const val = naamEl.value.trim();
+    if (!val) return;
+    // Find most recent record with this name
+    const match = records.slice().reverse().find(function(r){ return r.naam === val; });
+    if (match) {
+      const padEl = document.getElementById('f_pad');
+      const nikayaEl = document.getElementById('f_nikaya');
+      // Only autofill if the field is currently empty
+      if (!padEl.value) padEl.value = match.pad || '';
+      if (!nikayaEl.value) nikayaEl.value = match.nikaya || '';
+    }
+  };
 }
 
 function closeFormModal() {
@@ -1190,7 +1241,7 @@ function saveRecord() {
     records.push({id: nextId++, ...data});
     showToast('नयाँ रेकर्ड सफलतापूर्वक थपियो!', 'success');
   }
-  saveToStorage(); closeFormModal(); applyFilters();
+  saveToStorage(); closeFormModal(); applyFilters(); populateAutocomplete();
 }
 
 // ====================== DELETE ======================
